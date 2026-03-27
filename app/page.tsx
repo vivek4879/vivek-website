@@ -1,62 +1,114 @@
-import Image from "next/image";
-
 export default function Home() {
   return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
+    <div className="relative flex min-h-screen flex-col items-center justify-center overflow-hidden">
+      {/* Gradient mesh blobs — decorative background */}
+      {/* Layer 1: Large, faint blobs for depth */}
+      <div
+        aria-hidden="true"
+        className="blob absolute -top-[10%] -left-[5%] h-[500px] w-[500px] rounded-full opacity-50"
+        style={{
+          background: "radial-gradient(circle, #06B6D4 0%, transparent 70%)",
+          filter: "blur(80px)",
+          animation: "blob-drift-1 20s ease-in-out infinite",
+          willChange: "transform",
+        }}
+      />
+      <div
+        aria-hidden="true"
+        className="blob absolute -bottom-[10%] -right-[5%] h-[550px] w-[550px] rounded-full opacity-45"
+        style={{
+          background: "radial-gradient(circle, #8B5CF6 0%, transparent 70%)",
+          filter: "blur(90px)",
+          animation: "blob-drift-2 24s ease-in-out infinite",
+          willChange: "transform",
+        }}
+      />
+
+      {/* Layer 2: Medium blobs for color */}
+      <div
+        aria-hidden="true"
+        className="blob absolute top-[15%] right-[20%] h-[350px] w-[350px] rounded-full opacity-50"
+        style={{
+          background: "radial-gradient(circle, #8B5CF6 0%, transparent 70%)",
+          filter: "blur(100px)",
+          animation: "blob-drift-3 16s ease-in-out infinite",
+          willChange: "transform",
+        }}
+      />
+      <div
+        aria-hidden="true"
+        className="blob absolute bottom-[20%] left-[15%] h-[300px] w-[300px] rounded-full opacity-50"
+        style={{
+          background: "radial-gradient(circle, #22D3EE 0%, transparent 70%)",
+          filter: "blur(100px)",
+          animation: "blob-drift-1 18s ease-in-out infinite reverse",
+          willChange: "transform",
+        }}
+      />
+
+      {/* Layer 3: Small, brighter blob for focal point */}
+      <div
+        aria-hidden="true"
+        className="blob absolute top-[40%] left-[45%] h-[200px] w-[200px] -translate-x-1/2 -translate-y-1/2 rounded-full opacity-60"
+        style={{
+          background: "radial-gradient(circle, #06B6D4 0%, #8B5CF6 50%, transparent 70%)",
+          filter: "blur(80px)",
+          animation: "blob-drift-2 14s ease-in-out infinite",
+          willChange: "transform",
+        }}
+      />
+
+      {/* Noise texture overlay — adds grain to break up smooth gradients */}
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute inset-0 opacity-[0.03]"
+        style={{
+          backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E")`,
+          backgroundRepeat: "repeat",
+          backgroundSize: "256px 256px",
+        }}
+      />
+
+      {/* Content */}
+      <main className="relative z-10 flex flex-col items-center gap-6 px-6 text-center">
+        <h1
+          className="text-4xl font-bold tracking-tight sm:text-6xl"
+          style={{ fontFamily: "var(--font-heading)" }}
+        >
+          Vivek
+        </h1>
+        <p
+          className="text-lg text-muted"
+          style={{ fontFamily: "var(--font-mono)" }}
+        >
+          &gt; full-stack engineer
+        </p>
+        <div className="mt-8 rounded-xl border border-zinc-800 bg-zinc-900/60 px-8 py-6 backdrop-blur-md [-webkit-backdrop-filter:blur(12px)]">
+          <p className="text-sm text-zinc-400">
+            This site is currently being built.
+          </p>
+          <p className="mt-2 text-sm text-zinc-500">
+            Check back soon.
           </p>
         </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
+        <div className="mt-6 flex gap-6">
           <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
+            href="https://github.com/vivek4879"
             target="_blank"
             rel="noopener noreferrer"
+            className="text-sm text-zinc-500 transition-colors hover:text-cyan-accent"
+            style={{ fontFamily: "var(--font-mono)" }}
           >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
+            github
           </a>
           <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
+            href="https://www.linkedin.com/in/ahervivek/"
             target="_blank"
             rel="noopener noreferrer"
+            className="text-sm text-zinc-500 transition-colors hover:text-cyan-accent"
+            style={{ fontFamily: "var(--font-mono)" }}
           >
-            Documentation
+            linkedin
           </a>
         </div>
       </main>
