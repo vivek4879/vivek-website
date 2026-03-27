@@ -147,6 +147,11 @@ body * {
    Blob Drift Animations
    ========================================================== */
 
+@keyframes blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0; }
+}
+
 @keyframes blob-drift-1 {
   0%, 100% { transform: translate(0, 0) scale(1); }
   25% { transform: translate(80px, -60px) scale(1.1); }
@@ -182,72 +187,18 @@ body * {
 }
 
 /* ==========================================================
-   Machine Mode — full text-file transformation
-   Strips all visual elements, collapses to single column,
-   renders content like a .txt file (light) or terminal (dark)
+   Machine Mode — base styles
+   Components handle their own machine-mode rendering via
+   useTheme() hook. These are shared base styles only.
    ========================================================== */
 
-/* All text becomes monospace */
+/* All text becomes monospace in machine mode */
 .machine body {
   font-family: var(--font-mono);
-  max-width: 700px;
-  margin: 0 auto;
-  padding: 2rem 1.5rem;
   line-height: 1.8;
 }
 
-/* Hide all decorative elements */
-.machine .blob,
-.machine .noise-overlay,
-.machine [aria-hidden="true"]:not([role]) {
-  display: none !important;
-}
-
-/* Strip card styling — no backgrounds, borders, shadows, blur */
-.machine .glass-card,
-.machine [class*="backdrop-blur"],
-.machine [class*="bg-surface"] {
-  background: transparent !important;
-  border: none !important;
-  box-shadow: none !important;
-  backdrop-filter: none !important;
-  -webkit-backdrop-filter: none !important;
-  border-radius: 0 !important;
-  padding-left: 0 !important;
-  padding-right: 0 !important;
-}
-
-/* Hide images in machine mode */
-.machine img,
-.machine picture,
-.machine video {
-  display: none !important;
-}
-
-/* Section dividers — rendered via data attribute */
-.machine [data-section]::before {
-  content: "---";
-  display: block;
-  color: var(--t-muted);
-  margin: 2rem 0 1rem;
-}
-
-/* Section headings look like markdown */
-.machine [data-section]::after {
-  content: "## " attr(data-section);
-  display: block;
-  color: var(--t-heading);
-  font-weight: 700;
-  margin-bottom: 1rem;
-}
-
-/* Flatten all grid/flex layouts to single column */
-.machine [class*="grid"],
-.machine [class*="flex"] {
-  display: block !important;
-}
-
-/* Keep navbar flex for layout, but simplify */
+/* Simplify nav in machine mode */
 .machine nav {
   position: relative !important;
   background: transparent !important;
@@ -255,21 +206,6 @@ body * {
   box-shadow: none !important;
   backdrop-filter: none !important;
   -webkit-backdrop-filter: none !important;
-}
-
-.machine nav > div {
-  display: flex !important;
-}
-
-/* Dark machine: blinking cursor effect */
-.dark.machine .cursor-blink::after {
-  content: "█";
-  animation: blink 1s step-end infinite;
-}
-
-@keyframes blink {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0; }
 }
 
 /* ==========================================================
