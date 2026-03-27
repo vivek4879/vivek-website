@@ -1,69 +1,288 @@
 @import "tailwindcss";
 
+/* ==========================================================
+   Design Tokens — 4 mode combinations
+   Default = Light + Human (no classes on <html>)
+   .dark = Dark + Human
+   .machine = Light + Machine
+   .dark.machine = Dark + Machine
+
+   Raw tokens use --t-* prefix to avoid collision with
+   Tailwind's @theme which generates --color-* on :root.
+   ========================================================== */
+
+:root {
+  /* Backgrounds */
+  --t-background: #FAFAFA;
+  --t-surface: #FFFFFF;
+
+  /* Text */
+  --t-heading: #09090B;
+  --t-body: #52525B;
+  --t-muted: #71717A;
+
+  /* Accents */
+  --t-cyan: #06B6D4;
+  --t-cyan-light: #CFFAFE;
+  --t-cyan-deep: #155E75;
+  --t-violet: #8B5CF6;
+  --t-violet-light: #EDE9FE;
+  --t-violet-deep: #5B21B6;
+
+  /* UI */
+  --t-border: #E4E4E7;
+  --t-pill-bg: #F4F4F5;
+  --t-pill-text: #52525B;
+
+  /* Glass */
+  --t-glass-bg: rgba(255, 255, 255, 0.6);
+  --t-glass-border: rgba(228, 228, 231, 0.5);
+}
+
+/* --- Dark + Human --- */
+.dark {
+  --t-background: #09090B;
+  --t-surface: #18181B;
+
+  --t-heading: #FAFAFA;
+  --t-body: #A1A1AA;
+  --t-muted: #71717A;
+
+  --t-cyan: #22D3EE;
+  --t-cyan-light: #164E63;
+  --t-cyan-deep: #22D3EE;
+  --t-violet: #A78BFA;
+  --t-violet-light: #2E1065;
+  --t-violet-deep: #A78BFA;
+
+  --t-border: #27272A;
+  --t-pill-bg: #27272A;
+  --t-pill-text: #A1A1AA;
+
+  --t-glass-bg: rgba(24, 24, 27, 0.6);
+  --t-glass-border: rgba(39, 39, 42, 0.5);
+}
+
+/* --- Light + Machine --- */
+.machine {
+  --t-background: #FAFAFA;
+  --t-surface: #FAFAFA;
+
+  --t-heading: #09090B;
+  --t-body: #52525B;
+  --t-muted: #71717A;
+
+  --t-border: #E4E4E7;
+
+  --t-glass-bg: transparent;
+  --t-glass-border: transparent;
+}
+
+/* --- Dark + Machine --- */
+.dark.machine {
+  --t-background: #09090B;
+  --t-surface: #09090B;
+
+  --t-heading: #22D3EE;
+  --t-body: #A1A1AA;
+  --t-muted: #71717A;
+
+  --t-cyan: #22D3EE;
+  --t-violet: #A78BFA;
+
+  --t-border: #27272A;
+
+  --t-glass-bg: transparent;
+  --t-glass-border: transparent;
+}
+
+/* ==========================================================
+   Tailwind Theme — maps --t-* tokens to utility classes
+   e.g. bg-background, text-heading, border-border
+   ========================================================== */
+
 @theme inline {
-  --color-background: #09090B;
-  --color-foreground: #FAFAFA;
-  --color-muted: #71717A;
-  --color-cyan-accent: #22D3EE;
-  --color-violet-accent: #A78BFA;
+  --color-background: var(--t-background);
+  --color-surface: var(--t-surface);
+  --color-heading: var(--t-heading);
+  --color-body: var(--t-body);
+  --color-muted: var(--t-muted);
+  --color-cyan: var(--t-cyan);
+  --color-cyan-light: var(--t-cyan-light);
+  --color-cyan-deep: var(--t-cyan-deep);
+  --color-violet: var(--t-violet);
+  --color-violet-light: var(--t-violet-light);
+  --color-violet-deep: var(--t-violet-deep);
+  --color-border: var(--t-border);
+  --color-pill-bg: var(--t-pill-bg);
+  --color-pill-text: var(--t-pill-text);
   --font-sans: var(--font-inter);
   --font-heading: var(--font-space-grotesk);
   --font-mono: var(--font-jetbrains-mono);
 }
 
+/* ==========================================================
+   Base Styles
+   ========================================================== */
+
 body {
-  background: var(--color-background);
-  color: var(--color-foreground);
+  background: var(--t-background);
+  color: var(--t-body);
   font-family: var(--font-sans);
 }
 
+/* Mode transitions — smooth 300ms fade between all modes */
+body,
+body * {
+  transition: background-color 300ms ease, color 300ms ease, border-color 300ms ease;
+}
+
+/* Disable transitions for animations (blobs, etc.) */
+.blob,
+[aria-hidden="true"] {
+  transition: none !important;
+}
+
+/* ==========================================================
+   Blob Drift Animations
+   ========================================================== */
+
 @keyframes blob-drift-1 {
-  0%, 100% {
-    transform: translate(0, 0) scale(1);
-  }
-  25% {
-    transform: translate(80px, -60px) scale(1.1);
-  }
-  50% {
-    transform: translate(-40px, 40px) scale(0.95);
-  }
-  75% {
-    transform: translate(60px, 80px) scale(1.05);
-  }
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  25% { transform: translate(80px, -60px) scale(1.1); }
+  50% { transform: translate(-40px, 40px) scale(0.95); }
+  75% { transform: translate(60px, 80px) scale(1.05); }
 }
 
 @keyframes blob-drift-2 {
-  0%, 100% {
-    transform: translate(0, 0) scale(1);
-  }
-  25% {
-    transform: translate(-60px, 80px) scale(1.05);
-  }
-  50% {
-    transform: translate(50px, -30px) scale(1.1);
-  }
-  75% {
-    transform: translate(-80px, -50px) scale(0.95);
-  }
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  25% { transform: translate(-60px, 80px) scale(1.05); }
+  50% { transform: translate(50px, -30px) scale(1.1); }
+  75% { transform: translate(-80px, -50px) scale(0.95); }
 }
 
 @keyframes blob-drift-3 {
-  0%, 100% {
-    transform: translate(0, 0) scale(1);
-  }
-  25% {
-    transform: translate(40px, 60px) scale(0.95);
-  }
-  50% {
-    transform: translate(-70px, -40px) scale(1.1);
-  }
-  75% {
-    transform: translate(30px, -70px) scale(1.05);
-  }
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  25% { transform: translate(40px, 60px) scale(0.95); }
+  50% { transform: translate(-70px, -40px) scale(1.1); }
+  75% { transform: translate(30px, -70px) scale(1.05); }
 }
+
+/* ==========================================================
+   Accessibility
+   ========================================================== */
 
 @media (prefers-reduced-motion: reduce) {
   .blob {
     animation: none !important;
+  }
+  body, body * {
+    transition: none !important;
+  }
+}
+
+/* ==========================================================
+   Machine Mode — full text-file transformation
+   Strips all visual elements, collapses to single column,
+   renders content like a .txt file (light) or terminal (dark)
+   ========================================================== */
+
+/* All text becomes monospace */
+.machine body {
+  font-family: var(--font-mono);
+  max-width: 700px;
+  margin: 0 auto;
+  padding: 2rem 1.5rem;
+  line-height: 1.8;
+}
+
+/* Hide all decorative elements */
+.machine .blob,
+.machine .noise-overlay,
+.machine [aria-hidden="true"]:not([role]) {
+  display: none !important;
+}
+
+/* Strip card styling — no backgrounds, borders, shadows, blur */
+.machine .glass-card,
+.machine [class*="backdrop-blur"],
+.machine [class*="bg-surface"] {
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  border-radius: 0 !important;
+  padding-left: 0 !important;
+  padding-right: 0 !important;
+}
+
+/* Hide images in machine mode */
+.machine img,
+.machine picture,
+.machine video {
+  display: none !important;
+}
+
+/* Section dividers — rendered via data attribute */
+.machine [data-section]::before {
+  content: "---";
+  display: block;
+  color: var(--t-muted);
+  margin: 2rem 0 1rem;
+}
+
+/* Section headings look like markdown */
+.machine [data-section]::after {
+  content: "## " attr(data-section);
+  display: block;
+  color: var(--t-heading);
+  font-weight: 700;
+  margin-bottom: 1rem;
+}
+
+/* Flatten all grid/flex layouts to single column */
+.machine [class*="grid"],
+.machine [class*="flex"] {
+  display: block !important;
+}
+
+/* Keep navbar flex for layout, but simplify */
+.machine nav {
+  position: relative !important;
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+}
+
+.machine nav > div {
+  display: flex !important;
+}
+
+/* Dark machine: blinking cursor effect */
+.dark.machine .cursor-blink::after {
+  content: "█";
+  animation: blink 1s step-end infinite;
+}
+
+@keyframes blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0; }
+}
+
+/* ==========================================================
+   High Contrast Mode
+   ========================================================== */
+
+@media (prefers-contrast: more) {
+  :root {
+    --t-glass-bg: rgba(255, 255, 255, 0.95);
+    --t-glass-border: #E4E4E7;
+  }
+  .dark {
+    --t-glass-bg: rgba(9, 9, 11, 0.95);
+    --t-glass-border: #27272A;
   }
 }
