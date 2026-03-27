@@ -1,11 +1,15 @@
+import Navbar from "@/components/Navbar";
+
 export default function Home() {
   return (
     <div className="relative flex min-h-screen flex-col items-center justify-center overflow-hidden">
+      <Navbar />
+
       {/* Gradient mesh blobs — decorative background */}
       {/* Layer 1: Large, faint blobs for depth */}
       <div
         aria-hidden="true"
-        className="blob absolute -top-[10%] -left-[5%] h-[500px] w-[500px] rounded-full opacity-50"
+        className="blob absolute -top-[10%] -left-[5%] h-[500px] w-[500px] rounded-full opacity-75"
         style={{
           background: "radial-gradient(circle, #06B6D4 0%, transparent 70%)",
           filter: "blur(80px)",
@@ -15,7 +19,7 @@ export default function Home() {
       />
       <div
         aria-hidden="true"
-        className="blob absolute -bottom-[10%] -right-[5%] h-[550px] w-[550px] rounded-full opacity-45"
+        className="blob absolute -bottom-[10%] -right-[5%] h-[550px] w-[550px] rounded-full opacity-70"
         style={{
           background: "radial-gradient(circle, #8B5CF6 0%, transparent 70%)",
           filter: "blur(90px)",
@@ -27,7 +31,7 @@ export default function Home() {
       {/* Layer 2: Medium blobs for color */}
       <div
         aria-hidden="true"
-        className="blob absolute top-[15%] right-[20%] h-[350px] w-[350px] rounded-full opacity-50"
+        className="blob absolute top-[15%] right-[20%] h-[350px] w-[350px] rounded-full opacity-70"
         style={{
           background: "radial-gradient(circle, #8B5CF6 0%, transparent 70%)",
           filter: "blur(100px)",
@@ -37,7 +41,7 @@ export default function Home() {
       />
       <div
         aria-hidden="true"
-        className="blob absolute bottom-[20%] left-[15%] h-[300px] w-[300px] rounded-full opacity-50"
+        className="blob absolute bottom-[20%] left-[15%] h-[300px] w-[300px] rounded-full opacity-70"
         style={{
           background: "radial-gradient(circle, #22D3EE 0%, transparent 70%)",
           filter: "blur(100px)",
@@ -49,7 +53,7 @@ export default function Home() {
       {/* Layer 3: Small, brighter blob for focal point */}
       <div
         aria-hidden="true"
-        className="blob absolute top-[40%] left-[45%] h-[200px] w-[200px] -translate-x-1/2 -translate-y-1/2 rounded-full opacity-60"
+        className="blob absolute top-[40%] left-[45%] h-[200px] w-[200px] -translate-x-1/2 -translate-y-1/2 rounded-full opacity-80"
         style={{
           background: "radial-gradient(circle, #06B6D4 0%, #8B5CF6 50%, transparent 70%)",
           filter: "blur(80px)",
@@ -58,7 +62,7 @@ export default function Home() {
         }}
       />
 
-      {/* Noise texture overlay — adds grain to break up smooth gradients */}
+      {/* Noise texture overlay */}
       <div
         aria-hidden="true"
         className="pointer-events-none absolute inset-0 opacity-[0.03]"
@@ -72,7 +76,7 @@ export default function Home() {
       {/* Content */}
       <main className="relative z-10 flex flex-col items-center gap-6 px-6 text-center">
         <h1
-          className="text-4xl font-bold tracking-tight sm:text-6xl"
+          className="text-4xl font-bold tracking-tight text-heading sm:text-6xl"
           style={{ fontFamily: "var(--font-heading)" }}
         >
           Vivek
@@ -83,11 +87,11 @@ export default function Home() {
         >
           &gt; full-stack engineer
         </p>
-        <div className="mt-8 rounded-xl border border-zinc-800 bg-zinc-900/60 px-8 py-6 backdrop-blur-md [-webkit-backdrop-filter:blur(12px)]">
-          <p className="text-sm text-zinc-400">
+        <div className="mt-8 rounded-xl border border-border bg-[var(--t-glass-bg)] px-8 py-6 backdrop-blur-md [-webkit-backdrop-filter:blur(12px)]">
+          <p className="text-sm text-body">
             This site is currently being built.
           </p>
-          <p className="mt-2 text-sm text-zinc-500">
+          <p className="mt-2 text-sm text-muted">
             Check back soon.
           </p>
         </div>
@@ -96,7 +100,7 @@ export default function Home() {
             href="https://github.com/vivek4879"
             target="_blank"
             rel="noopener noreferrer"
-            className="text-sm text-zinc-500 transition-colors hover:text-cyan-accent"
+            className="text-sm text-muted transition-colors hover:text-cyan"
             style={{ fontFamily: "var(--font-mono)" }}
           >
             github
@@ -105,7 +109,7 @@ export default function Home() {
             href="https://www.linkedin.com/in/ahervivek/"
             target="_blank"
             rel="noopener noreferrer"
-            className="text-sm text-zinc-500 transition-colors hover:text-cyan-accent"
+            className="text-sm text-muted transition-colors hover:text-cyan"
             style={{ fontFamily: "var(--font-mono)" }}
           >
             linkedin
