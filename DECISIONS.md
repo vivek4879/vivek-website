@@ -117,3 +117,85 @@ Documenting the why behind every significant decision in this project.
 - Light machine = plain text document. Dark machine = terminal with cyan text and blinking cursor. Both are visually distinct from human mode.
 - Implementation is pure CSS (`.machine` class rules) — no DOM duplication, same HTML, fully SEO-safe.
 - Also serves a real purpose: machine mode content mirrors what goes into `llms.txt`, so there's conceptual consistency between the visual toggle and the actual machine-readable file.
+
+---
+
+## 008 — Machine Mode via Component-Level Rendering, Not CSS Overrides
+
+**Problem:** Pure CSS overrides for machine mode (`.machine [class*="flex"] { display: block !important }`) were too fragile — fighting Tailwind utility classes and Framer Motion inline styles caused overlapping content and broken layouts.
+
+**Options considered:**
+1. **CSS overrides** — global `.machine` rules in `globals.css` to strip visual elements
+2. **Component-level rendering** — each component checks `mode === "machine"` via `useTheme()` and renders a plain-text version
+
+**Choice:** Option 2
+
+**Reasoning:**
+- CSS overrides couldn't reliably flatten complex layouts (flex inside flex, Framer Motion inline transforms)
+- Every new component would need more CSS overrides — unmaintainable whack-a-mole
+- Component-level rendering is explicit: each component owns its machine-mode presentation
+- Same text content stays in the DOM (SEO-safe), just different JSX structure
+- Machine mode looks genuinely like a `.txt` file now, not a broken version of human mode
+
+---
+
+## 009 — CSS Gradient Blobs over WebGL Shader Package
+
+**Problem:** User found a v0 project using the `shaders` npm package (WebGL/Three.js) for fluid gradient backgrounds. Considered swapping our CSS blobs.
+
+**Options considered:**
+1. **CSS blobs** — absolutely positioned divs with `filter: blur()`, cursor-following via rAF
+2. **`shaders` npm package** — WebGL renderer built on Three.js
+
+**Choice:** Option 1 (improved)
+
+**Reasoning:**
+- `shaders` package depends on Three.js (~150-200KB gzipped). For a portfolio site targeting good Core Web Vitals, too heavy.
+- WebGL drains battery on mobile, can jank on mid-range phones. Our spec explicitly says lightweight mobile.
+- If WebGL fails (old device, privacy browser, corporate lockdown), you get nothing — needs a CSS fallback anyway, meaning two systems to maintain.
+- Improved CSS version instead: 7 blobs in 3 layers, config-driven, constellation-based cursor tracking, 8% grain overlay with mix-blend-mode overlay (matching the v0 project's grain technique).
+- Upgrade path remains: can swap in shader for desktop-only hero later as a progressive enhancement.
+
+---
+
+## 010 — Scroll-Driven Card Animation for Projects Section
+
+**Problem:** Choosing how to present the Projects section. Standard grid vs. scroll-driven animation inspired by a v0 doomscrolling prototype.
+
+**Options considered:**
+1. **Static grid** — standard card grid, hover effects, straightforward
+2. **Scroll-driven animation** — cards animate through phases (appear → descend → explode → settle into row) driven by scroll progress
+
+**Choice:** Option 2 (adapted)
+
+**Reasoning:**
+- The animation creates a memorable, portfolio-differentiating experience
+- Adapted from 800vh to ~400-500vh to not dominate page scroll length
+- Limited to 6 featured projects in the animation; additional projects live at `/projects` page
+- Fixed positions (no `Math.random()`) to avoid React hydration mismatch
+- No doomscroll loop at the end — cards settle into row and user scrolls past
+- Mobile: simplified version with fewer cards and shorter scroll height
+- Built last after all other sections are in place
+
+---
+
+## 011 — AI Chat Widget via Claude API
+
+**Problem:** Want visitors to be able to ask questions about Vivek conversationally, rather than just reading static text.
+
+**Options considered:**
+1. **Claude API (Anthropic SDK)** — system prompt with personal info, Next.js API route, Claude Haiku for cost efficiency
+2. **Pre-built widget (Chatbase, Mendable)** — upload docs, get embeddable chatbot
+3. **Local/lightweight RAG** — pre-indexed Q&A, only hit API for unusual questions
+
+**Choice:** Option 1
+
+**Reasoning:**
+- Full control over personality, knowledge, and response style via system prompt
+- Next.js API routes handle the backend as a serverless function on Vercel — no separate server needed
+- Claude Haiku is fractions of a cent per message — portfolio traffic = cents/month
+- Rate limiting + daily message cap controls costs
+- Demonstrates real AI integration (not just embedding a third-party widget)
+- Directly relevant to the HummingAgent internship application ("we build with AI")
+- No third-party branding, watermarks, or vendor dependency
+- Frontend: floating chat button bottom-right, opens a chat panel. API integration done last.

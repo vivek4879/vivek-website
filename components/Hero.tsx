@@ -48,6 +48,13 @@ export default function Hero() {
     >
       <GradientMesh />
 
+      {/* Bottom fade — dissolves blobs into the next section */}
+      <div
+        className="pointer-events-none absolute bottom-0 left-0 right-0 h-40 z-[1]"
+        style={{ background: "linear-gradient(to bottom, transparent, var(--t-background))" }}
+        aria-hidden="true"
+      />
+
       <motion.div
         style={{ scale, opacity, y }}
         className="relative z-10 flex flex-col items-center gap-6 px-6 text-center"
