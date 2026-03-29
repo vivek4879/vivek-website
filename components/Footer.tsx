@@ -35,7 +35,7 @@
   const socialLinks = [
     { label: "GitHub", href: "https://github.com/vivek4879" },
     { label: "LinkedIn", href: "https://www.linkedin.com/in/ahervivek/" },
-    { label: "Email", href: "mailto:vivekaher48@gmail.com" },
+    { label: "Email", href: "mailto:vivek4879@gmail.com" },
   ];
 
   export default function Footer() {
@@ -108,7 +108,7 @@
             <p className="text-muted">---</p>
             <p className="mt-4 text-lg font-bold text-heading">## Contact</p>
             <p className="mt-4 text-body">
-              Get in touch: vivekaher48@gmail.com
+              Get in touch: vivek4879@gmail.com
             </p>
             <div className="mt-2 flex gap-4">
               {socialLinks.map((link) => (

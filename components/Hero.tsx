@@ -123,9 +123,9 @@ export default function Hero() {
         </div>
 
         {/* Scroll indicator */}
-        <div className="mt-12 flex flex-col items-center gap-2 opacity-70">
+        <div className="mt-12 flex flex-col items-center gap-2">
           <p
-            className="text-sm text-cyan"
+            className="text-sm font-medium text-heading"
             style={{ fontFamily: "var(--font-mono)" }}
           >
             scroll

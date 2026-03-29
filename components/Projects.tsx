@@ -249,7 +249,7 @@ function ProjectCard({
 
 function MobileProjects() {
   return (
-    <section id="projects" className="px-6 py-24 sm:py-32">
+    <section className="px-6 py-24 sm:py-32">
       <div className="mx-auto max-w-6xl">
         <p
           className="mb-4 text-xs uppercase tracking-wider text-cyan"
@@ -296,11 +296,6 @@ export default function Projects() {
   const headingOpacity = useTransform(scrollYProgress, [0, 0.05], [0, 1]);
   const headingY = useTransform(scrollYProgress, [0, 0.05], [20, 0]);
 
-  // Scroll hint: visible at the start, disappears as animation begins
-  const hintOpacity = useTransform(scrollYProgress, [0, 0.05, 0.2], [0, 1, 0]);
-
-  // "View All" only appears once the grid has fully settled
-  const viewAllOpacity = useTransform(scrollYProgress, [0.75, 0.85], [0, 1]);
 
   if (mode === "machine") {
     return (
@@ -349,7 +344,7 @@ export default function Projects() {
   // Desktop: scroll-driven animation
   // Mobile: static grid (detected via CSS, not JS — avoids hydration mismatch)
   return (
-    <>
+    <div id="projects">
       {/* Mobile: static grid, hidden on lg+ */}
       <div className="lg:hidden">
         <MobileProjects />
@@ -358,7 +353,6 @@ export default function Projects() {
       {/* Desktop: scroll-driven animation, hidden below lg */}
       <section
         ref={sectionRef}
-        id="projects"
         className="relative hidden lg:block"
         style={{ height: "400vh" }}
       >
@@ -395,33 +389,31 @@ export default function Projects() {
             ))}
           </div>
 
-          {/* Scroll hint — visible at start, fades out as animation begins */}
-          <motion.div
-            className="absolute bottom-12 left-1/2 flex -translate-x-1/2 flex-col items-center gap-2"
-            style={{ opacity: hintOpacity }}
-          >
-            <p className="text-xs text-muted" style={{ fontFamily: "var(--font-mono)" }}>
-              scroll to explore
-            </p>
-            <motion.div
-              className="h-8 w-0.5 rounded-full bg-muted"
-              animate={{ scaleY: [1, 0.4, 1], opacity: [0.4, 1, 0.4] }}
-              transition={{ duration: 1.5, repeat: Infinity, ease: "easeInOut" }}
-            />
-          </motion.div>
-        </div>
+          {/* Bottom indicator — View All (end) above scroll hint (start) */}
+          <div className="absolute bottom-12 left-1/2 flex -translate-x-1/2 flex-col items-center gap-3">
+            {/* View All Projects */}
+            <Link
+              href="/projects"
+              className="inline-flex items-center gap-2 text-sm text-muted transition-colors hover:text-cyan"
+              style={{ fontFamily: "var(--font-mono)" }}
+            >
+              View All Projects <span>→</span>
+            </Link>
 
-        {/* View all link — outside sticky, appears at the very bottom of the scroll section */}
-        <div className="absolute bottom-12 left-1/2 -translate-x-1/2">
-          <Link
-            href="/projects"
-            className="inline-flex items-center gap-2 text-sm text-muted transition-colors hover:text-cyan"
-            style={{ fontFamily: "var(--font-mono)" }}
-          >
-            View All Projects <span>→</span>
-          </Link>
+            {/* Scroll hint */}
+            <div className="flex flex-col items-center gap-2">
+              <p className="text-sm font-medium text-heading" style={{ fontFamily: "var(--font-mono)" }}>
+                scroll
+              </p>
+              <motion.div
+                className="h-8 w-0.5 rounded-full bg-muted"
+                animate={{ scaleY: [1, 0.4, 1], opacity: [0.4, 1, 0.4] }}
+                transition={{ duration: 1.5, repeat: Infinity, ease: "easeInOut" }}
+              />
+            </div>
+          </div>
         </div>
       </section>
-    </>
+    </div>
   );
 }
