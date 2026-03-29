@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import Navbar from "@/components/Navbar";
 import { projects } from "@/lib/projects";
 
 export const metadata: Metadata = {
@@ -11,8 +12,9 @@ export const metadata: Metadata = {
 export default function ProjectsPage() {
   return (
     <div className="min-h-screen bg-background">
+      <Navbar />
       {/* Header */}
-      <header className="px-6 pt-12 pb-8">
+      <header className="px-6 pt-24 pb-8">
         <div className="mx-auto max-w-3xl">
           <Link
             href="/"

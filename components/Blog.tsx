@@ -70,7 +70,7 @@ export default function Blog() {
           {posts.map((post) => (
             <article
               key={post.slug}
-              className="group flex flex-col gap-3 rounded-2xl border border-border bg-surface p-6 transition-all duration-300 hover:border-cyan/30 sm:flex-row sm:items-start sm:justify-between sm:gap-8"
+              className="group flex flex-col gap-3 rounded-2xl border border-border bg-surface p-6 transition-all duration-300 hover:border-cyan/60 sm:flex-row sm:items-start sm:justify-between sm:gap-8"
             >
               <div className="flex-1">
                 <h3

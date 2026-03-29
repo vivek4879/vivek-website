@@ -17,9 +17,10 @@ type LeetCodeData = {
   hard: number;
 };
 
-// GitHub's exact contribution graph colors
+// GitHub's exact contribution graph colors (light / dark mode)
 const GITHUB_COLORS_LIGHT = ["#ebedf0", "#9be9a8", "#40c463", "#30a14e", "#216e39"];
 const GITHUB_COLORS_DARK  = ["#161b22", "#0e4429", "#006d32", "#26a641", "#39d353"];
+
 
 export default function CodingActivity() {
   const { mode, theme } = useTheme();
