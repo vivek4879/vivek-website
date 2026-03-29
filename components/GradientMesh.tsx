@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef } from "react";
+import { useTheme } from "@/lib/theme-provider";
 
 interface BlobState {
   el: HTMLDivElement;
@@ -36,6 +37,8 @@ const DRIFT_ANIMATIONS = [
 ];
 
 export default function GradientMesh() {
+  const { theme } = useTheme();
+  const isLight = theme === "light";
   const containerRef = useRef<HTMLDivElement>(null);
   const blobsRef = useRef<BlobState[]>([]);
   const mouseRef = useRef({ x: 0, y: 0 });
@@ -116,7 +119,7 @@ export default function GradientMesh() {
             left: 0,
             width: blob.size,
             height: blob.size,
-            opacity: blob.opacity,
+            opacity: isLight ? blob.opacity * 0.9 : blob.opacity,
             background: "mix" in blob && blob.mix
               ? `radial-gradient(circle, ${blob.color} 0%, ${blob.mix} 50%, transparent 70%)`
               : `radial-gradient(circle, ${blob.color} 0%, transparent 70%)`,
@@ -127,17 +130,17 @@ export default function GradientMesh() {
         />
       ))}
 
-      {/* Dark wash — helps colors pop against dark background and improves text readability */}
-      <div className="absolute inset-0 bg-black/15" />
-
-      {/* Grain texture overlay — 8% opacity with overlay blend for premium feel */}
-      <div
-        className="noise-overlay absolute inset-0 opacity-[0.08]"
-        style={{
-          backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 400 400' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E")`,
-          mixBlendMode: "overlay",
-        }}
-      />
+      {/* Dark wash + grain — dark mode only */}
+      {!isLight && <div className="absolute inset-0 bg-black/15" />}
+      {!isLight && (
+        <div
+          className="noise-overlay absolute inset-0 opacity-[0.08]"
+          style={{
+            backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 400 400' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E")`,
+            mixBlendMode: "overlay",
+          }}
+        />
+      )}
     </div>
   );
 }
