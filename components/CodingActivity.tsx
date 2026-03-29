@@ -17,16 +17,13 @@ type LeetCodeData = {
   hard: number;
 };
 
-const CYAN_LEVELS = [
-  "bg-zinc-800",
-  "bg-cyan-900/60",
-  "bg-cyan-700/70",
-  "bg-cyan-500/80",
-  "bg-cyan-400",
-];
+// GitHub's exact contribution graph colors
+const GITHUB_COLORS_LIGHT = ["#ebedf0", "#9be9a8", "#40c463", "#30a14e", "#216e39"];
+const GITHUB_COLORS_DARK  = ["#161b22", "#0e4429", "#006d32", "#26a641", "#39d353"];
 
 export default function CodingActivity() {
-  const { mode } = useTheme();
+  const { mode, theme } = useTheme();
+  const githubColors = theme === "dark" ? GITHUB_COLORS_DARK : GITHUB_COLORS_LIGHT;
   const [github, setGithub] = useState<GitHubData | null>(null);
   const [leetcode, setLeetcode] = useState<LeetCodeData | null>(null);
 
@@ -127,7 +124,8 @@ export default function CodingActivity() {
                       {week.map((level: number, di: number) => (
                         <div
                           key={di}
-                          className={`h-[10px] w-[10px] rounded-sm ${CYAN_LEVELS[level]} transition-colors`}
+                          className="h-[10px] w-[10px] rounded-sm transition-colors"
+                          style={{ backgroundColor: githubColors[level] }}
                           title={`${level} contributions`}
                         />
                       ))}
