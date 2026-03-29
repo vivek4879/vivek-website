@@ -10,12 +10,11 @@ type GitHubData = {
   weeks: number[][];
 };
 
-// LeetCode placeholder — replaced when LeetCode API is integrated
-const leetcode = {
-  solved: 142,
-  easy: 58,
-  medium: 67,
-  hard: 17,
+type LeetCodeData = {
+  solved: number;
+  easy: number;
+  medium: number;
+  hard: number;
 };
 
 const CYAN_LEVELS = [
@@ -29,19 +28,30 @@ const CYAN_LEVELS = [
 export default function CodingActivity() {
   const { mode } = useTheme();
   const [github, setGithub] = useState<GitHubData | null>(null);
+  const [leetcode, setLeetcode] = useState<LeetCodeData | null>(null);
 
   useEffect(() => {
     fetch("/api/github")
       .then((r) => r.json())
       .then((data) => setGithub(data))
-      .catch(() => {}); // fail silently — placeholders stay visible
+      .catch(() => {});
+
+    fetch("/api/leetcode")
+      .then((r) => r.json())
+      .then((data) => setLeetcode(data))
+      .catch(() => {});
   }, []);
 
-  // Use real data if loaded, fall back to zeros while loading
+  // Use real data if loaded, show "—" while loading
   const contributions = github?.contributions ?? "—";
   const repos = github?.repos ?? "—";
   const streak = github?.streak ?? "—";
   const grid = github?.weeks ?? Array(52).fill(Array(7).fill(0));
+
+  const lcSolved = leetcode?.solved ?? "—";
+  const lcEasy = leetcode?.easy ?? 0;
+  const lcMedium = leetcode?.medium ?? 0;
+  const lcHard = leetcode?.hard ?? 0;
 
   if (mode === "machine") {
     return (
@@ -53,7 +63,7 @@ export default function CodingActivity() {
             GitHub: {contributions} contributions | {streak} day streak | {repos} repos
           </p>
           <p className="mt-2 text-body">
-            LeetCode: {leetcode.solved} solved ({leetcode.easy} easy, {leetcode.medium} medium, {leetcode.hard} hard)
+            LeetCode: {lcSolved} solved ({lcEasy} easy, {lcMedium} medium, {lcHard} hard)
           </p>
         </div>
       </section>
@@ -95,7 +105,7 @@ export default function CodingActivity() {
           {/* Stats bar */}
           <div className="flex flex-wrap gap-6 border-b border-border px-6 py-4 sm:gap-10">
             <StatItem value={contributions} label="contributions" color="text-cyan-400" />
-            <StatItem value={leetcode.solved} label="problems solved" color="text-violet-400" />
+            <StatItem value={lcSolved} label="problems solved" color="text-violet-400" />
             <StatItem value={streak} label="day streak" color="text-cyan-400" />
             <StatItem value={repos} label="public repos" color="text-zinc-400" />
           </div>
@@ -138,21 +148,21 @@ export default function CodingActivity() {
               <div className="flex flex-col gap-4">
                 <ProgressBar
                   label="Easy"
-                  solved={leetcode.easy}
+                  solved={lcEasy}
                   total={800}
                   color="bg-green-500"
                   textColor="text-green-400"
                 />
                 <ProgressBar
                   label="Medium"
-                  solved={leetcode.medium}
+                  solved={lcMedium}
                   total={1700}
                   color="bg-yellow-500"
                   textColor="text-yellow-400"
                 />
                 <ProgressBar
                   label="Hard"
-                  solved={leetcode.hard}
+                  solved={lcHard}
                   total={750}
                   color="bg-red-500"
                   textColor="text-red-400"
@@ -163,7 +173,7 @@ export default function CodingActivity() {
                   className="text-3xl font-bold text-violet-400"
                   style={{ fontFamily: "var(--font-mono)" }}
                 >
-                  {leetcode.solved}
+                  {lcSolved}
                 </span>
                 <span
                   className="text-xs text-zinc-500"
