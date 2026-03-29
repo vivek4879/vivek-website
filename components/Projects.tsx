@@ -2,83 +2,9 @@
 
 import { useRef } from "react";
 import { motion, useScroll, useTransform } from "framer-motion";
+import Link from "next/link";
 import { useTheme } from "@/lib/theme-provider";
-
-// ── Project data ──────────────────────────────────────────────
-
-// Each project gets a rich gradient background — CSS gradient as placeholder for future images
-const CARD_GRADIENTS = [
-  "bg-gradient-to-br from-cyan-600 via-cyan-800 to-blue-900",       // Career Vault
-  "bg-gradient-to-br from-violet-600 via-violet-800 to-indigo-900", // Patient Portal
-  "bg-gradient-to-br from-emerald-600 via-teal-700 to-cyan-900",    // FluidZero
-  "bg-gradient-to-br from-amber-500 via-orange-700 to-red-900",     // MoodWave
-  "bg-gradient-to-br from-rose-600 via-pink-700 to-purple-900",     // EcommerceApp
-  "bg-gradient-to-br from-blue-500 via-blue-700 to-indigo-900",     // vivek-website
-  "bg-gradient-to-br from-orange-500 via-amber-700 to-yellow-900",  // Leads Tracker
-  "bg-gradient-to-br from-pink-500 via-rose-700 to-red-900",        // Bitcoin Volatility
-];
-
-const projects = [
-  {
-    title: "Career Vault",
-    description:
-      "AI career companion — work journal, bullet bank, RAG-powered resume tailoring",
-    tech: ["Next.js", "Prisma", "pgvector", "Gemini", "Playwright"],
-    github: "https://github.com/vivek4879/social-media-agent",
-  },
-  {
-    title: "Patient Portal",
-    description:
-      "Full-stack mini-EMR with admin dashboard, JWT auth, recurring appointment engine",
-    tech: ["Next.js", "Prisma", "PostgreSQL", "Zod"],
-    github: "https://github.com/vivek4879/patient-portal-1",
-    live: "https://patient-portal-1.vercel.app",
-  },
-  {
-    title: "FluidZero",
-    description:
-      "Marketing website for an AI document intelligence startup",
-    tech: ["Next.js", "TypeScript"],
-    github: "https://github.com/vivek4879/fennec-vercel",
-    live: "https://www.fluidzero.ai",
-  },
-  {
-    title: "MoodWave",
-    description:
-      "Audio-intelligence platform — mood detection from music via spectral analysis",
-    tech: ["Python", "FastAPI", "librosa", "Spotify API"],
-    github: "https://github.com/vivek4879/moodWave",
-  },
-  {
-    title: "EcommerceApp",
-    description:
-      "Spring Boot REST API with layered architecture, DTOs, centralized error handling",
-    tech: ["Java", "Spring Boot", "PostgreSQL", "JPA"],
-    github: "https://github.com/vivek4879/EcommerceApp",
-  },
-  {
-    title: "vivek-website",
-    description:
-      "Personal portfolio — 4-mode theming, glass aesthetic, scroll-driven animations",
-    tech: ["Next.js", "Tailwind CSS", "Framer Motion"],
-    github: "https://github.com/vivek4879/vivek-website",
-    live: "https://vivek-website-3s865py0y-vivek-ahers-projects.vercel.app",
-  },
-  {
-    title: "Leads Tracker",
-    description:
-      "Chrome extension to save and manage tabs with localStorage persistence",
-    tech: ["JavaScript", "Chrome APIs"],
-    github: "https://github.com/vivek4879/chrome-extension",
-  },
-  {
-    title: "Bitcoin Volatility",
-    description:
-      "ETL pipeline for BTC price analysis with Spark MapReduce and K8s orchestration",
-    tech: ["Scala", "Spark", "PostgreSQL", "Hive", "Kubernetes"],
-    github: "https://github.com/vivek4879/Bitcoin-Daily-Price-Volatility",
-  },
-];
+import { projects, CARD_GRADIENTS } from "@/lib/projects";
 
 // ── Seeded PRNG (Mulberry32) ──────────────────────────────────
 // Deterministic: same seed → same sequence on server & client
@@ -342,6 +268,15 @@ function MobileProjects() {
             <ProjectCard key={p.title} project={p} gradient={CARD_GRADIENTS[i]} />
           ))}
         </div>
+        <div className="mt-8 text-center">
+          <Link
+            href="/projects"
+            className="inline-flex items-center gap-2 text-sm text-muted transition-colors hover:text-cyan"
+            style={{ fontFamily: "var(--font-mono)" }}
+          >
+            View All Projects <span>→</span>
+          </Link>
+        </div>
       </div>
     </section>
   );
@@ -360,6 +295,12 @@ export default function Projects() {
   // Heading visible from the start
   const headingOpacity = useTransform(scrollYProgress, [0, 0.05], [0, 1]);
   const headingY = useTransform(scrollYProgress, [0, 0.05], [20, 0]);
+
+  // Scroll hint: visible at the start, disappears as animation begins
+  const hintOpacity = useTransform(scrollYProgress, [0, 0.05, 0.2], [0, 1, 0]);
+
+  // "View All" only appears once the grid has fully settled
+  const viewAllOpacity = useTransform(scrollYProgress, [0.75, 0.85], [0, 1]);
 
   if (mode === "machine") {
     return (
@@ -453,6 +394,32 @@ export default function Projects() {
               />
             ))}
           </div>
+
+          {/* Scroll hint — visible at start, fades out as animation begins */}
+          <motion.div
+            className="absolute bottom-12 left-1/2 flex -translate-x-1/2 flex-col items-center gap-2"
+            style={{ opacity: hintOpacity }}
+          >
+            <p className="text-xs text-muted" style={{ fontFamily: "var(--font-mono)" }}>
+              scroll to explore
+            </p>
+            <motion.div
+              className="h-8 w-0.5 rounded-full bg-muted"
+              animate={{ scaleY: [1, 0.4, 1], opacity: [0.4, 1, 0.4] }}
+              transition={{ duration: 1.5, repeat: Infinity, ease: "easeInOut" }}
+            />
+          </motion.div>
+        </div>
+
+        {/* View all link — outside sticky, appears at the very bottom of the scroll section */}
+        <div className="absolute bottom-12 left-1/2 -translate-x-1/2">
+          <Link
+            href="/projects"
+            className="inline-flex items-center gap-2 text-sm text-muted transition-colors hover:text-cyan"
+            style={{ fontFamily: "var(--font-mono)" }}
+          >
+            View All Projects <span>→</span>
+          </Link>
         </div>
       </section>
     </>
