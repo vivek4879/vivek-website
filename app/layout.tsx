@@ -21,10 +21,32 @@ const jetbrainsMono = JetBrains_Mono({
   display: "swap",
 });
 
+const SITE_URL = "https://vivek-website-five.vercel.app";
+
 export const metadata: Metadata = {
-  title: "Vivek | Full-Stack Engineer",
+  metadataBase: new URL(SITE_URL),
+  title: "Vivek Aher | Full-Stack Engineer",
   description:
-    "Personal portfolio of Vivek — full-stack engineer building with Next.js, React, and modern web technologies.",
+    "Personal portfolio of Vivek Aher — full-stack engineer building with Next.js, React, and modern web technologies.",
+  openGraph: {
+    title: "Vivek Aher | Full-Stack Engineer",
+    description:
+      "Full-stack engineer building thoughtful software at the intersection of design and engineering.",
+    url: SITE_URL,
+    siteName: "Vivek Aher",
+    type: "website",
+    locale: "en_US",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Vivek Aher | Full-Stack Engineer",
+    description:
+      "Full-stack engineer building thoughtful software at the intersection of design and engineering.",
+  },
+  robots: {
+    index: true,
+    follow: true,
+  },
 };
 
 // Blocking script that runs before the browser paints.
