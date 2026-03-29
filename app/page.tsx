@@ -6,6 +6,7 @@ import Blog from "@/components/Blog";
 import Projects from "@/components/Projects";
 import CodingActivity from "@/components/CodingActivity";
 import Footer from "@/components/Footer";
+import GradientMesh from "@/components/GradientMesh";
 
 const jsonLd = {
   "@context": "https://schema.org",
@@ -30,16 +31,19 @@ export default function Home() {
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
-      <Navbar />
-      <main>
-        <Hero />
-        <AboutMe />
-        <Projects />
-        <TechStack />
-        <Blog />
-        <CodingActivity />
-      </main>
-      <Footer />
+      <GradientMesh />
+      <div className="relative z-[1]">
+        <Navbar />
+        <main>
+          <Hero />
+          <AboutMe />
+          <Projects />
+          <TechStack />
+          <Blog />
+          <CodingActivity />
+        </main>
+        <Footer />
+      </div>
     </>
   );
 }
