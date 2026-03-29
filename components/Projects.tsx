@@ -344,7 +344,14 @@ export default function Projects() {
   // Desktop: scroll-driven animation
   // Mobile: static grid (detected via CSS, not JS — avoids hydration mismatch)
   return (
-    <div id="projects">
+    <div id="projects" className="relative bg-background">
+      {/* Top fade — blobs dissolve into opaque Projects area */}
+      <div
+        className="pointer-events-none absolute inset-x-0 top-0 h-32 -translate-y-full"
+        style={{ background: "linear-gradient(to bottom, transparent, var(--t-background))" }}
+        aria-hidden="true"
+      />
+
       {/* Mobile: static grid, hidden on lg+ */}
       <div className="lg:hidden">
         <MobileProjects />
@@ -414,6 +421,13 @@ export default function Projects() {
           </div>
         </div>
       </section>
+
+      {/* Bottom fade — blobs reappear below Projects */}
+      <div
+        className="pointer-events-none absolute inset-x-0 bottom-0 h-32 translate-y-full"
+        style={{ background: "linear-gradient(to bottom, var(--t-background), transparent)" }}
+        aria-hidden="true"
+      />
     </div>
   );
 }

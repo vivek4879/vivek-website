@@ -37,7 +37,7 @@ const DRIFT_ANIMATIONS = [
 ];
 
 export default function GradientMesh() {
-  const { theme } = useTheme();
+  const { theme, mode } = useTheme();
   const isLight = theme === "light";
   const containerRef = useRef<HTMLDivElement>(null);
   const blobsRef = useRef<BlobState[]>([]);
@@ -102,11 +102,13 @@ export default function GradientMesh() {
     };
   }, []);
 
+  if (mode === "machine") return null;
+
   return (
     <div
       ref={containerRef}
       aria-hidden="true"
-      className="pointer-events-none absolute inset-0 overflow-hidden"
+      className="pointer-events-none fixed inset-0 overflow-hidden"
     >
       {/* Gradient blobs */}
       {BLOB_CONFIG.map((blob, i) => (
