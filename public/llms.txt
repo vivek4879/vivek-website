@@ -1,0 +1,21 @@
+# Vivek Aher
+
+> Full-Stack Engineer
+
+## About
+I'm Vivek Aher — a full-stack engineer at Q IT Technologies, currently building an AI-native dance choreography platform. I work with Next.js, React, TypeScript, Python, Java, and AWS. I pair program with Claude daily and believe the best way to understand something is to ship it.
+
+## Projects
+- Career Vault — AI career companion with RAG-powered resume tailoring (Next.js, Prisma, pgvector, Gemini)
+- Patient Portal — Full-stack mini-EMR with admin dashboard and JWT auth (Next.js, Prisma, PostgreSQL)
+- FluidZero — Marketing website for an AI document intelligence startup (Next.js, TypeScript)
+- MoodWave — Audio-intelligence platform with mood detection via spectral analysis (Python, FastAPI)
+- EcommerceApp — Spring Boot REST API with layered architecture (Java, Spring Boot, PostgreSQL)
+- Leads Tracker — Chrome extension for tab management with localStorage persistence
+- Bitcoin Volatility — ETL pipeline for BTC price analysis with Spark and Kubernetes
+
+## Links
+- GitHub: https://github.com/vivek4879
+- LinkedIn: https://www.linkedin.com/in/ahervivek/
+- Email: vivekaher48@gmail.com
+- Website: https://vivek-website-five.vercel.app
