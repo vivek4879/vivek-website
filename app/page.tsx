@@ -7,6 +7,8 @@ import Projects from "@/components/Projects";
 import CodingActivity from "@/components/CodingActivity";
 import Footer from "@/components/Footer";
 import GradientMesh from "@/components/GradientMesh";
+import { getAllPosts } from "@/lib/posts";
+import { HOMEPAGE_BLOG_PREVIEW_COUNT } from "@/lib/blog-config";
 
 const jsonLd = {
   "@context": "https://schema.org",
@@ -25,6 +27,8 @@ const jsonLd = {
 };
 
 export default function Home() {
+  const posts = getAllPosts().slice(0, HOMEPAGE_BLOG_PREVIEW_COUNT);
+
   return (
     <>
       <script
@@ -39,7 +43,7 @@ export default function Home() {
           <AboutMe />
           <Projects />
           <TechStack />
-          <Blog />
+          <Blog posts={posts} />
           <CodingActivity />
         </main>
         <Footer />

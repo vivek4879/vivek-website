@@ -1,0 +1,1 @@
+export const HOMEPAGE_BLOG_PREVIEW_COUNT = 3;

@@ -1,0 +1,46 @@
+---
+title: "Hello, MDX"
+date: "2026-04-14"
+excerpt: "First post on the new MDX pipeline — a quick tour of what the renderer can do."
+tags: ["meta", "next.js", "mdx"]
+draft: false
+---
+
+This site's blog is now powered by MDX files in the repo. Every post lives in
+`content/posts/` as a `.mdx` file with a YAML frontmatter block at the top.
+
+## Why MDX
+
+Plain Markdown is enough for prose, but a developer blog eventually wants
+**embedded React components** — interactive demos, custom callouts, charts.
+MDX gives us that escape hatch without rebuilding the renderer later.
+
+## What this post tests
+
+This post exists mostly to verify the rendering pipeline. It exercises:
+
+- Frontmatter parsing (`gray-matter`)
+- GitHub-Flavored Markdown via `remark-gfm` (this list, tables, autolinks)
+- Syntax highlighting via [`rehype-pretty-code`](https://rehype-pretty.pages.dev/)
+- The full MDX → React compile path through `next-mdx-remote`
+
+## A code block
+
+```ts
+// lib/posts.ts
+export type Post = {
+  slug: string;
+  title: string;
+  date: string;
+  excerpt: string;
+  tags?: string[];
+};
+
+export function getAllPosts(): Post[] {
+  // Read content/posts/, parse frontmatter, return sorted by date desc.
+  return [];
+}
+```
+
+If you can read this with a styled code block above and a clean tag list
+below, the pipeline works.
