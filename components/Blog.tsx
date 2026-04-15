@@ -1,34 +1,31 @@
 "use client";
 
+import Link from "next/link";
 import { useTheme } from "@/lib/theme-provider";
+import type { Post } from "@/lib/posts";
+import { HOMEPAGE_BLOG_PREVIEW_COUNT } from "@/lib/blog-config";
 
-// Placeholder posts — replace with real data from MDX files later
-const posts = [
-  {
-    title: "Building an AI-Native Dance Choreography Platform",
-    date: "Coming Soon",
-    excerpt:
-      "How we're using AI to generate dance sequences — the architecture decisions, the model pipeline, and what surprised us.",
-    slug: "ai-dance-choreography",
-  },
-  {
-    title: "What I Learned Building My First React Native App",
-    date: "Coming Soon",
-    excerpt:
-      "Lessons from shipping FavorIt — navigation patterns, state management, and the gap between tutorial code and production.",
-    slug: "first-react-native-app",
-  },
-  {
-    title: "Pair Programming with Claude: An Honest Review",
-    date: "Coming Soon",
-    excerpt:
-      "Six months of using AI as a daily coding partner. What works, what doesn't, and how it changed how I learn.",
-    slug: "pair-programming-with-claude",
-  },
-];
+type BlogProps = {
+  posts: Post[];
+};
 
-export default function Blog() {
+function formatDate(iso: string): string {
+  const d = new Date(`${iso}T00:00:00`);
+  return d.toLocaleDateString("en-US", {
+    year: "numeric",
+    month: "short",
+    day: "numeric",
+  });
+}
+
+export default function Blog({ posts }: BlogProps) {
   const { mode } = useTheme();
+
+  if (posts.length === 0) {
+    return null;
+  }
+
+  const showArchiveLink = posts.length >= HOMEPAGE_BLOG_PREVIEW_COUNT;
 
   if (mode === "machine") {
     return (
@@ -38,11 +35,20 @@ export default function Blog() {
           <p className="mt-4 text-lg font-bold text-heading">## Writing</p>
           {posts.map((post) => (
             <div key={post.slug} className="mt-6">
-              <p className="text-heading font-bold">{post.title}</p>
-              <p className="text-muted">{post.date}</p>
+              <Link href={`/blog/${post.slug}`} className="text-heading font-bold hover:text-cyan">
+                {post.title}
+              </Link>
+              <p className="text-muted">{formatDate(post.date)}</p>
               <p className="mt-1 text-body">{post.excerpt}</p>
             </div>
           ))}
+          {showArchiveLink && (
+            <p className="mt-6">
+              <Link href="/blog" className="text-cyan hover:underline">
+                [view all posts]
+              </Link>
+            </p>
+          )}
         </div>
       </section>
     );
@@ -68,8 +74,9 @@ export default function Blog() {
         {/* Post list */}
         <div className="flex flex-col gap-6">
           {posts.map((post) => (
-            <article
+            <Link
               key={post.slug}
+              href={`/blog/${post.slug}`}
               className="group flex flex-col gap-3 rounded-2xl border border-border bg-surface p-6 transition-all duration-300 hover:border-cyan/60 sm:flex-row sm:items-start sm:justify-between sm:gap-8"
             >
               <div className="flex-1">
@@ -85,10 +92,11 @@ export default function Blog() {
               </div>
               <div className="flex shrink-0 items-center gap-4 sm:flex-col sm:items-end sm:gap-2">
                 <time
+                  dateTime={post.date}
                   className="text-xs text-muted"
                   style={{ fontFamily: "var(--font-mono)" }}
                 >
-                  {post.date}
+                  {formatDate(post.date)}
                 </time>
                 <span
                   className="text-xs text-cyan transition-colors"
@@ -97,9 +105,21 @@ export default function Blog() {
                   Read More →
                 </span>
               </div>
-            </article>
+            </Link>
           ))}
         </div>
+
+        {showArchiveLink && (
+          <div className="mt-8 flex justify-end">
+            <Link
+              href="/blog"
+              className="text-sm text-cyan hover:underline"
+              style={{ fontFamily: "var(--font-mono)" }}
+            >
+              View all posts →
+            </Link>
+          </div>
+        )}
       </div>
     </section>
   );

@@ -73,17 +73,11 @@ export default function CodingActivity() {
       <div className="mx-auto max-w-6xl">
         {/* Section label */}
         <p
-          className="mb-4 text-xs uppercase tracking-wider text-cyan"
+          className="mb-12 text-xs uppercase tracking-wider text-cyan"
           style={{ fontFamily: "var(--font-mono)" }}
         >
           Activity
         </p>
-        <h2
-          className="mb-12 text-3xl font-bold tracking-tight text-heading sm:text-4xl"
-          style={{ fontFamily: "var(--font-heading)" }}
-        >
-          I ship code and sharpen fundamentals
-        </h2>
 
         {/* Terminal-style card */}
         <div className="overflow-hidden rounded-2xl border border-border bg-surface">
