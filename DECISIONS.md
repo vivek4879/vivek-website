@@ -199,3 +199,65 @@ Documenting the why behind every significant decision in this project.
 - Directly relevant to the HummingAgent internship application ("we build with AI")
 - No third-party branding, watermarks, or vendor dependency
 - Frontend: floating chat button bottom-right, opens a chat panel. API integration done last.
+
+---
+
+## 012 — MDX-in-Repo for the Blog
+
+**Problem:** The blog needed real content infrastructure. Three placeholder posts in `components/Blog.tsx` were hardcoded, "Read More →" went nowhere, and there was no `/blog/[slug]` route. Need to choose how posts are authored, stored, and rendered.
+
+**Options considered:**
+1. **MDX files in repo** (`content/posts/*.mdx`) — frontmatter + Markdown + optional embedded React components
+2. **Headless CMS** (Contentful, Sanity, etc.) — author in a web UI, fetch via API at build/request time
+3. **Plain Markdown in repo** — same as MDX but without the React-component escape hatch
+4. **Notion-sync** — write in Notion, sync to the site via API
+
+**Choice:** Option 1
+
+**Reasoning:**
+- **Version-controlled** — every edit is a git commit. Diffable, revertible, branchable.
+- **Portable forever** — Markdown + frontmatter is a 30-year format. No vendor lock-in. If we leave Next.js, the posts come with us as plain text.
+- **No runtime dependency** — posts compile at build time. No CMS API to be down. `/blog/hello-mdx` is a static HTML file on Vercel's edge.
+- **MDX > plain Markdown** — gives us the escape hatch to embed React components later (interactive demos, custom callouts, charts) without rebuilding the renderer.
+- **MDX > headless CMS** — for an engineer-blogger writing a few posts a month, the CMS UI is a step *backward* from `vim post.mdx`. CMSes earn their keep at editorial-team scale.
+- **MDX > Notion-sync** — Notion is a great drafting tool but a leaky source of truth. The sync layer is fragile and the published HTML inherits Notion's quirks.
+- **Engineer-blogger standard** — Josh Comeau, Lee Robinson, Dan Abramov all use this pattern. There's a deep well of community knowledge to draw from when problems arise.
+
+**Implementation notes:**
+- **Frontmatter schema:** `title`, `date` (YYYY-MM-DD string, not YAML date — predictable parsing), `excerpt` required. `tags`, `draft` optional. `slug` derived from filename (one source of truth, no drift).
+- **Data layer:** `lib/posts.ts` owns all filesystem access. Components never read posts directly — they receive `Post[]` as props. Two return types: `Post` for lists (no body), `PostWithContent` for the detail page.
+- **Validation:** Missing required frontmatter throws at build time. Fail loud, not silent.
+- **Drafts:** Filtered out only when `NODE_ENV === "production"`. Visible in dev for preview.
+- **Pipeline:** `next-mdx-remote/rsc` (server-component compile) + `remark-gfm` (tables, autolinks, task lists) + `rehype-pretty-code` with Shiki dual-theme (`github-light` + `github-dark`) for syntax highlighting that respects the existing dark-mode toggle.
+- **Routing:** `app/blog/[slug]/page.tsx` with `generateStaticParams()` so every post is pre-rendered at build time. `generateMetadata()` populates per-post `<title>`, description, and Open Graph article tags.
+- **Typography:** Hand-rolled `.prose-post` styles in `globals.css` rather than `@tailwindcss/typography`. The plugin's defaults fight the existing zinc/cyan/violet token system; ~150 lines of explicit CSS that uses our `--t-*` vars matches the brand exactly.
+
+---
+
+## 013 — Public "/lab" Page for Ideas-in-Progress
+
+**Problem:** Portfolios typically show only finished work. I wanted a public place to list things I want to build, am building, or considered and shelved — a signal that I have more curiosity than what's already shipped, without waiting until each idea is production-ready to mention it. Also wanted a single pipeline for "things to build" instead of scattering notes between CLAUDE.md, private TODOs, and mental RAM.
+
+**Options considered:**
+1. **Public `/lab` page with accordion UI, TS const array of items + status badges** — ship a visitor-facing list, single source of truth for both public ideas and internal infra TODOs
+2. **Private TODO.md in the repo** — same tracking, not public. Safer (no promises), but loses the "engineer-in-motion" signal
+3. **Blog-style posts for each idea** — authored as MDX, heavy per-idea (frontmatter + long-form writing) — overkill for short bullets, and most ideas never mature into posts
+4. **GitHub Issues / Project board** — free infrastructure, public, but lives on a different domain and doesn't match the portfolio's design language
+
+**Choice:** Option 1
+
+**Reasoning:**
+- **Public signal matters.** "Things I want to build" communicates curiosity and range in a way that a finished-projects list can't. Hides nothing about the pipeline.
+- **Single source of truth.** One place for both visitor-facing ideas *and* internal infra ideas (custom MDX components, analytics migrations, etc.). Cuts the "where does this go?" decision tree to zero.
+- **Staleness is self-signaling.** Status badges (`idea → exploring → building → shipped → shelved`) make the pipeline visible. A list of 20 `idea`-status items that never move is itself honest data about how I actually work. Visitors can judge.
+- **Design consistency.** Lives on the same domain, same theme, same navbar, same glassmorphism language — fits the site instead of sending visitors offsite to GitHub.
+- **Editing friction must be ~zero.** Opening `lib/lab.ts` and adding one object is faster than filing a GitHub issue. Low friction = items actually get captured.
+
+**Implementation notes:**
+- **Accordion via native `<details>` + `<summary>`** — semantic, keyboard-accessible for free (Enter/Space expand/collapse), screen readers announce expanded state without ARIA, zero JS state management, zero client bundle impact. The page stays a server component. Chevron rotates 90° on `[open]` via pure CSS. Considered Framer Motion's `AnimatePresence`, rejected: extra JS for behavior the browser gives us for free.
+- **Data in `lib/lab.ts` as a TS const array** — matches the `lib/projects.ts` precedent. `LabStatus` is a string union type, so TypeScript catches invalid statuses at edit time. `id` is an explicit slug (not derived from the title) so renames don't break permalinks shared externally.
+- **Status colors as CSS tokens** — five status-bg / status-text pairs defined once in `:root` and `.dark` in `globals.css`, mapped to class names. Adding a sixth status = one token pair + one CSS rule + one union type member. No per-component color logic.
+- **Item ordering is manual.** No auto-sort by status or date. The array order *is* the visual order — lets me put whatever I want most visitors to see at the top.
+- **Intentionally deferred**: per-item `:target` highlighting, filtering by status, RSS feed, MDX-authored items. All easy adds when they're actually needed; none of them needed at v1.
+
+**Runtime bug caught during implementation:** importing a constant from `lib/posts.ts` (which imports `node:fs`) into a `"use client"` component drags `node:fs` into the client bundle and breaks the build. Fix: split runtime values into a node-free config module (`lib/blog-config.ts`). Type-only imports (`import type { ... }`) are stripped at compile and remain safe.

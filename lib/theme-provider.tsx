@@ -19,7 +19,12 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
   const [mode, setMode] = useState<Mode>("human");
   const [mounted, setMounted] = useState(false);
 
-  // On mount: read saved preferences or fall back to system preference
+  // On mount: read saved preferences or fall back to system preference.
+  // setState-in-effect is intentional here: localStorage is unavailable on the server,
+  // so we start with a default and reconcile after hydration. The blocking script in
+  // <head> already applied the correct .dark / .machine class before paint, so this
+  // React state update is only syncing internal state — there is no visual flash.
+  /* eslint-disable react-hooks/set-state-in-effect */
   useEffect(() => {
     const savedTheme = localStorage.getItem("theme") as Theme | null;
     const savedMode = localStorage.getItem("mode") as Mode | null;
@@ -36,6 +41,7 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
 
     setMounted(true);
   }, []);
+  /* eslint-enable react-hooks/set-state-in-effect */
 
   // Sync classes on <html> whenever theme or mode changes
   useEffect(() => {
