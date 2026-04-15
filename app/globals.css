@@ -37,6 +37,18 @@
   /* Glass */
   --t-glass-bg: rgba(255, 255, 255, 0.6);
   --t-glass-border: rgba(228, 228, 231, 0.5);
+
+  /* Lab statuses */
+  --t-status-idea-bg: #F4F4F5;
+  --t-status-idea-text: #52525B;
+  --t-status-exploring-bg: #CFFAFE;
+  --t-status-exploring-text: #155E75;
+  --t-status-building-bg: #EDE9FE;
+  --t-status-building-text: #5B21B6;
+  --t-status-shipped-bg: #DCFCE7;
+  --t-status-shipped-text: #166534;
+  --t-status-shelved-bg: #F4F4F5;
+  --t-status-shelved-text: #A1A1AA;
 }
 
 /* --- Dark + Human --- */
@@ -61,6 +73,17 @@
 
   --t-glass-bg: rgba(24, 24, 27, 0.6);
   --t-glass-border: rgba(39, 39, 42, 0.5);
+
+  --t-status-idea-bg: #27272A;
+  --t-status-idea-text: #A1A1AA;
+  --t-status-exploring-bg: #164E63;
+  --t-status-exploring-text: #67E8F9;
+  --t-status-building-bg: #2E1065;
+  --t-status-building-text: #C4B5FD;
+  --t-status-shipped-bg: #14532D;
+  --t-status-shipped-text: #86EFAC;
+  --t-status-shelved-bg: #27272A;
+  --t-status-shelved-text: #71717A;
 }
 
 /* --- Light + Machine --- */
@@ -357,6 +380,91 @@ body * {
   background: var(--t-pill-bg);
   color: var(--t-heading);
   font-weight: 600;
+}
+
+/* ==========================================================
+   Status Badges (used on /lab)
+   ========================================================== */
+
+.status-badge {
+  display: inline-block;
+  font-size: 0.6875rem;
+  line-height: 1;
+  padding: 0.3em 0.6em;
+  border-radius: 9999px;
+  text-transform: lowercase;
+  letter-spacing: 0.02em;
+  white-space: nowrap;
+}
+
+.status-badge--idea      { background: var(--t-status-idea-bg);      color: var(--t-status-idea-text); }
+.status-badge--exploring { background: var(--t-status-exploring-bg); color: var(--t-status-exploring-text); }
+.status-badge--building  { background: var(--t-status-building-bg);  color: var(--t-status-building-text); }
+.status-badge--shipped   { background: var(--t-status-shipped-bg);   color: var(--t-status-shipped-text); }
+.status-badge--shelved   { background: var(--t-status-shelved-bg);   color: var(--t-status-shelved-text); opacity: 0.7; }
+
+/* ==========================================================
+   Lab — accordion list
+   Native <details> + <summary> for semantics + free a11y.
+   ========================================================== */
+
+.lab-list {
+  border-top: 1px solid var(--t-border);
+}
+
+.lab-item {
+  border-bottom: 1px solid var(--t-border);
+}
+
+.lab-item__summary {
+  display: flex;
+  align-items: center;
+  gap: 0.875rem;
+  padding: 1.125rem 0.25rem;
+  cursor: pointer;
+  list-style: none;
+  min-height: 44px;
+}
+
+.lab-item__summary::-webkit-details-marker {
+  display: none;
+}
+
+.lab-item__summary:hover .lab-item__title,
+.lab-item__summary:focus-visible .lab-item__title {
+  color: var(--t-cyan);
+}
+
+.lab-item__chevron {
+  display: inline-block;
+  font-family: var(--font-mono);
+  font-size: 1.25rem;
+  line-height: 1;
+  color: var(--t-muted);
+  transition: transform 200ms ease;
+  flex-shrink: 0;
+  width: 1ch;
+}
+
+.lab-item[open] > .lab-item__summary > .lab-item__chevron {
+  transform: rotate(90deg);
+}
+
+.lab-item__title {
+  flex: 1;
+  font-family: var(--font-heading);
+  font-weight: 600;
+  color: var(--t-heading);
+  font-size: 1.0625rem;
+  transition: color 200ms ease;
+}
+
+.lab-item__body {
+  padding: 0 0.25rem 1.5rem 2.125rem;
+  color: var(--t-body);
+  line-height: 1.7;
+  font-size: 0.9375rem;
+  white-space: pre-wrap;
 }
 
 /* ==========================================================
