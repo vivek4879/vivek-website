@@ -1,6 +1,8 @@
 "use client";
 
 import { useState, useEffect, useCallback, useRef } from "react";
+import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { useTheme } from "@/lib/theme-provider";
 
 const navLinks = [
@@ -8,12 +10,15 @@ const navLinks = [
   { label: "Stack", href: "#stack" },
   { label: "Projects", href: "#projects" },
   { label: "Blog", href: "#blog" },
+  { label: "Lab", href: "/lab" },
   { label: "Activity", href: "#activity" },
   { label: "Contact", href: "#contact" },
 ];
 
 export default function Navbar() {
   const { theme, mode, toggleTheme, toggleMode } = useTheme();
+  const pathname = usePathname();
+  const onHome = pathname === "/";
   const [scrolled, setScrolled] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
   const mobileMenuRef = useRef<HTMLDivElement>(null);
@@ -88,11 +93,29 @@ export default function Navbar() {
     };
   }, [mobileOpen]);
 
-  const handleNavClick = useCallback((href: string) => {
-    setMobileOpen(false);
-    const el = document.querySelector(href);
-    el?.scrollIntoView({ behavior: "smooth" });
-  }, []);
+  // Resolve nav href based on current page:
+  // - Route hrefs ("/lab") pass through unchanged.
+  // - Hash hrefs ("#about") stay raw when on home (we scroll);
+  //   otherwise prefix with "/" so the router navigates home + browser handles the hash.
+  const resolveHref = useCallback(
+    (href: string) => {
+      if (href.startsWith("#")) return onHome ? href : `/${href}`;
+      return href;
+    },
+    [onHome],
+  );
+
+  // On the homepage, intercept hash clicks for smooth scroll.
+  // Elsewhere, let <Link> navigate (browser handles the scroll-to-hash on load).
+  const handleHashScroll = useCallback(
+    (e: React.MouseEvent<HTMLAnchorElement>, href: string) => {
+      if (!onHome || !href.startsWith("#")) return;
+      e.preventDefault();
+      setMobileOpen(false);
+      document.querySelector(href)?.scrollIntoView({ behavior: "smooth" });
+    },
+    [onHome],
+  );
 
   return (
     <nav
@@ -106,33 +129,32 @@ export default function Navbar() {
     >
       <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-6">
         {/* Logo / Name */}
-        <a
-          href="#"
+        <Link
+          href="/"
           onClick={(e) => {
-            e.preventDefault();
-            window.scrollTo({ top: 0, behavior: "smooth" });
+            if (onHome) {
+              e.preventDefault();
+              window.scrollTo({ top: 0, behavior: "smooth" });
+            }
           }}
           className="text-lg font-bold tracking-tight text-heading"
           style={{ fontFamily: "var(--font-heading)" }}
         >
           Vivek
-        </a>
+        </Link>
 
         {/* Desktop nav links */}
         <div className="hidden items-center gap-8 md:flex">
           {navLinks.map((link) => (
-            <a
+            <Link
               key={link.href}
-              href={link.href}
-              onClick={(e) => {
-                e.preventDefault();
-                handleNavClick(link.href);
-              }}
+              href={resolveHref(link.href)}
+              onClick={(e) => handleHashScroll(e, link.href)}
               className="text-xs uppercase tracking-wider text-muted transition-colors hover:text-heading"
               style={{ fontFamily: "var(--font-mono)" }}
             >
               {link.label}
-            </a>
+            </Link>
           ))}
         </div>
 
@@ -265,19 +287,19 @@ export default function Navbar() {
           role="menu"
         >
           {navLinks.map((link) => (
-            <a
+            <Link
               key={link.href}
-              href={link.href}
+              href={resolveHref(link.href)}
               onClick={(e) => {
-                e.preventDefault();
-                handleNavClick(link.href);
+                setMobileOpen(false);
+                handleHashScroll(e, link.href);
               }}
               className="rounded-lg px-4 py-3 text-sm uppercase tracking-wider text-muted transition-colors hover:bg-surface hover:text-heading"
               style={{ fontFamily: "var(--font-mono)" }}
               role="menuitem"
             >
               {link.label}
-            </a>
+            </Link>
           ))}
         </div>
       )}
