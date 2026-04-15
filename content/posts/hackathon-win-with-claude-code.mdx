@@ -1,0 +1,64 @@
+---
+title: "How I Used Claude Code to Build a Hackathon Winning Project"
+date: "2026-04-14"
+excerpt: "Experience of using Claude Code to build a hackathon-winning project in a day — plan mode, parallel subagents, and why asking 'why' turned out to be the most valuable habit."
+tags: ["claude-code", "ai-tools", "hackathon"]
+draft: false
+---
+
+This is my account of what it was like to build Shadow AI Gatekeeper with Claude Code as my primary tool.
+
+
+## The setup
+
+I built this for the IBM watsonx Orchestrate hackathon. The project was an enterprise AI tool approval system: employees ask in chat whether they can use a vendor, the system evaluates it against company policy, and either approves it, escalates it to a human reviewer, or blocks it with an alternative.
+
+The backend was Python agents running on IBM watsonx Orchestrate. The frontend was a Next.js approver dashboard. Redis was the data layer. Tavily for web extraction. We had one day to build this.
+
+I used Claude Code throughout. Not occasionally. Continuously. For planning, for implementation, for debugging, for figuring out what to build next.
+
+Here is what I actually learned.
+
+## Plan mode changed how I started
+
+The biggest mistake I used to make when starting a project is jumping into code before I had a clear picture of what I was building. I would start with whatever seemed most urgent and keep refining the plan as I went. This time I did something different.
+
+Once Claude came up with the initial plan, I spent a lot of time going back and forth — asking questions, understanding tradeoffs. Then I noticed the UltraPlan option. This is a new feature still in research preview, but apart from some initial setup glitches, it was impressive.
+
+UltraPlan sends your planning task and the initial plan you built with Claude Code from your local CLI to a Claude Code web session running in plan mode. Claude drafts the plan in the cloud while you keep working in your terminal. When the plan is ready, you open it in your browser to comment on specific sections, ask for revisions, and choose where to execute it. It stays tied to the session you started in your CLI, and you can seamlessly send it back with one click. This completely revamped my Claude Code planning experience.
+
+I reviewed the plan. I pushed back on parts I did not like. The plan changed. Only when I was happy with it did I approve it and let implementation start. We ended up with a 38-step plan, which you can check in [the GitHub repo](https://github.com/vivek4879/AIGatekeeper).
+
+## Parallel subagents for independent work
+
+The project was built against a 38-step plan. A lot of those steps were completely independent — they touched different files, had no shared state, did not need to wait on each other. I had been wanting to use Claude subagents and agent teams for a while. This seemed like the perfect opportunity to try both.
+
+While reading more about this, I realized that Claude uses subagents on its own by default when it encounters a task that matches a subagent's description. That's it — you don't have to call it explicitly. All you have to do is write a proper description for the subagent when you create one. When Claude encounters a matching task, it delegates to that subagent, which works independently and returns results. I had been using the default subagents all along without even knowing it. One way to notice: subagents use custom background colors in the terminal for the Claude robot art.
+
+While this was already helping a lot, I asked Claude which of our 38 steps could use agent teams, and it promptly identified batches of steps that could run in parallel without dependency conflicts.
+
+With agent teams, Claude Code lets you spawn multiple subagents in a single message, each working on a different task simultaneously. When building the dashboard, the NavBar component, the StatsRow component, the CaseListTabs component, and the Redis data layer changes were all independent. I briefed four subagents at once and they implemented in parallel. What would have been four sequential sessions compressed into one. Side note: if you want to see all agents in the team working, you need to open the session in tmux or iTerm2. You should do it — it is genuinely cool to watch them work across different panes.
+
+
+
+## The thing that surprised me most
+
+I expected Claude Code to be useful for the mechanical parts of coding. What surprised me was how much I learned from it explaining things as it built them.
+
+Why Redis Streams over a regular list for the audit log: append only, consumer groups, built-in offset tracking.
+
+Why the two-layer cache design works the way it does: semantic cache on top catches rewordings, keyed cache underneath catches exact re-queries, different eviction strategies for each.
+
+Why scoring should be a pure function: testable, auditable, deterministic. No LLM between the evidence and the verdict means every decision is explainable.
+
+These explanations did not come because I asked for a lecture. They came because I asked *why* when I did not understand a design choice. That habit — asking *why* — made the collaboration better and left me with a much clearer understanding of the system than I would have had otherwise.
+
+That is the part I will carry into the next project.
+
+---
+
+We won 2 of the 5 categories at the hackathon — **Best Use of Redis** and **Best Use of IBM watsonx Orchestrate**.
+
+Because watsonx Orchestrate requires login, the [live dashboard](https://approver-ui.vercel.app/) ships preloaded with example tickets and a "how the agent reasoned" panel, so you can see exactly how the agents evaluated each request without needing your own watsonx account.
+
+**Links:** [Live demo](https://approver-ui.vercel.app/) · [GitHub](https://github.com/vivek4879/AIGatekeeper)
