@@ -16,7 +16,7 @@ const navLinks = [
 ];
 
 export default function Navbar() {
-  const { theme, mode, toggleTheme, toggleMode } = useTheme();
+  const { theme, toggleTheme } = useTheme();
   const pathname = usePathname();
   const onHome = pathname === "/";
   const [scrolled, setScrolled] = useState(false);
@@ -205,30 +205,6 @@ export default function Navbar() {
                 <line x1="18.36" y1="5.64" x2="19.78" y2="4.22" />
               </svg>
             )}
-          </button>
-
-          {/* Mode toggle: HUMAN | MACHINE */}
-          <button
-            onClick={toggleMode}
-            className="flex h-9 items-center rounded-lg border border-border px-3 text-xs uppercase tracking-wider transition-colors hover:bg-surface"
-            style={{ fontFamily: "var(--font-mono)" }}
-            aria-label={`Switch to ${mode === "human" ? "machine" : "human"} mode`}
-          >
-            <span
-              className={`transition-colors ${
-                mode === "human" ? "text-cyan" : "text-muted"
-              }`}
-            >
-              Human
-            </span>
-            <span className="mx-1.5 text-border">|</span>
-            <span
-              className={`transition-colors ${
-                mode === "machine" ? "text-cyan" : "text-muted"
-              }`}
-            >
-              Machine
-            </span>
           </button>
 
           {/* Hamburger button — mobile only */}

@@ -1,7 +1,3 @@
-"use client";
-
-import { useTheme } from "@/lib/theme-provider";
-
 const categories = [
   {
     label: "Languages",
@@ -30,25 +26,6 @@ const categories = [
 ];
 
 export default function TechStack() {
-  const { mode } = useTheme();
-
-  if (mode === "machine") {
-    return (
-      <section id="stack" className="px-6 py-8">
-        <div className="mx-auto max-w-[700px]" style={{ fontFamily: "var(--font-mono)" }}>
-          <p className="text-muted">---</p>
-          <p className="mt-4 text-lg font-bold text-heading">## Tech Stack</p>
-          {categories.map((cat) => (
-            <div key={cat.label} className="mt-4">
-              <p className="text-heading font-bold">{cat.label}:</p>
-              <p className="text-body">{cat.items.join(", ")}</p>
-            </div>
-          ))}
-        </div>
-      </section>
-    );
-  }
-
   return (
     <section id="stack" className="px-6 py-24 sm:py-32">
       <div className="mx-auto max-w-6xl">

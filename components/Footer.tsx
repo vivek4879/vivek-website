@@ -1,7 +1,6 @@
 "use client";
 
   import { useState } from "react";
-  import { useTheme } from "@/lib/theme-provider";
 
   type FormData = {
     name: string;
@@ -39,7 +38,6 @@
   ];
 
   export default function Footer() {
-    const { mode } = useTheme();
     const [formData, setFormData] = useState<FormData>({
       name: "",
       email: "",
@@ -96,39 +94,6 @@
       } catch {
         setStatus("error");
       }
-    }
-
-    if (mode === "machine") {
-      return (
-        <footer id="contact" className="px-6 py-8">
-          <div
-            className="mx-auto max-w-[700px]"
-            style={{ fontFamily: "var(--font-mono)" }}
-          >
-            <p className="text-muted">---</p>
-            <p className="mt-4 text-lg font-bold text-heading">## Contact</p>
-            <p className="mt-4 text-body">
-              Get in touch: vivek4879@gmail.com
-            </p>
-            <div className="mt-2 flex gap-4">
-              {socialLinks.map((link) => (
-                <a
-                  key={link.label}
-                  href={link.href}
-                  className="text-cyan underline"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
-                  {link.label}
-                </a>
-              ))}
-            </div>
-            <p className="mt-8 text-muted">
-              © {new Date().getFullYear()} Vivek Aher
-            </p>
-          </div>
-        </footer>
-      );
     }
 
     return (

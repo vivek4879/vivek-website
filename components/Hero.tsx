@@ -2,10 +2,8 @@
 
 import { useRef } from "react";
 import { motion, useScroll, useTransform } from "framer-motion";
-import { useTheme } from "@/lib/theme-provider";
 
 export default function Hero() {
-  const { mode } = useTheme();
   const sectionRef = useRef<HTMLElement>(null);
 
   const { scrollYProgress } = useScroll({
@@ -17,28 +15,6 @@ export default function Hero() {
   const opacity = useTransform(scrollYProgress, [0, 0.6], [1, 0]);
   const y = useTransform(scrollYProgress, [0, 1], [0, -60]);
 
-  // Machine mode: render as plain text, like an llms.txt file
-  if (mode === "machine") {
-    return (
-      <section id="hero" className="px-6 pt-24 pb-8">
-        <div className="mx-auto max-w-[700px]" style={{ fontFamily: "var(--font-mono)" }}>
-          <p className="text-heading text-lg font-bold"># Vivek Aher</p>
-          <p className="mt-4 text-body">&gt; full-stack engineer</p>
-          <p className="mt-4 text-body">
-            Building thoughtful software at the intersection of design and engineering.
-          </p>
-          <p className="mt-6 text-muted">
-            [<a href="#projects" className="text-cyan underline">View My Work</a>]
-            {" | "}
-            [<a href="#contact" className="text-cyan underline">Get In Touch</a>]
-          </p>
-          <p className="mt-6 text-muted">---</p>
-        </div>
-      </section>
-    );
-  }
-
-  // Human mode: full visual experience
   return (
     <section
       ref={sectionRef}

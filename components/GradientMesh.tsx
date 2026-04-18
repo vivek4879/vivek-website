@@ -37,7 +37,7 @@ const DRIFT_ANIMATIONS = [
 ];
 
 export default function GradientMesh() {
-  const { theme, mode } = useTheme();
+  const { theme } = useTheme();
   const isLight = theme === "light";
   const containerRef = useRef<HTMLDivElement>(null);
   const blobsRef = useRef<BlobState[]>([]);
@@ -100,12 +100,7 @@ export default function GradientMesh() {
       window.removeEventListener("mousemove", handleMouseMove);
       cancelAnimationFrame(rafRef.current);
     };
-    // Re-run when `mode` flips: switching to "machine" returns null from render
-    // (unmounting the blob DOM), so on the way back to "human" we need to
-    // re-query the fresh nodes and reattach cursor tracking.
-  }, [mode]);
-
-  if (mode === "machine") return null;
+  }, []);
 
   return (
     <div

@@ -1,7 +1,4 @@
-"use client";
-
 import Link from "next/link";
-import { useTheme } from "@/lib/theme-provider";
 import type { Post } from "@/lib/posts";
 import { HOMEPAGE_BLOG_PREVIEW_COUNT } from "@/lib/blog-config";
 
@@ -19,40 +16,11 @@ function formatDate(iso: string): string {
 }
 
 export default function Blog({ posts }: BlogProps) {
-  const { mode } = useTheme();
-
   if (posts.length === 0) {
     return null;
   }
 
   const showArchiveLink = posts.length >= HOMEPAGE_BLOG_PREVIEW_COUNT;
-
-  if (mode === "machine") {
-    return (
-      <section id="blog" className="px-6 py-8">
-        <div className="mx-auto max-w-[700px]" style={{ fontFamily: "var(--font-mono)" }}>
-          <p className="text-muted">---</p>
-          <p className="mt-4 text-lg font-bold text-heading">## Writing</p>
-          {posts.map((post) => (
-            <div key={post.slug} className="mt-6">
-              <Link href={`/blog/${post.slug}`} className="text-heading font-bold hover:text-cyan">
-                {post.title}
-              </Link>
-              <p className="text-muted">{formatDate(post.date)}</p>
-              <p className="mt-1 text-body">{post.excerpt}</p>
-            </div>
-          ))}
-          {showArchiveLink && (
-            <p className="mt-6">
-              <Link href="/blog" className="text-cyan hover:underline">
-                [view all posts]
-              </Link>
-            </p>
-          )}
-        </div>
-      </section>
-    );
-  }
 
   return (
     <section id="blog" className="px-6 py-24 sm:py-32">

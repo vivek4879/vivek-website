@@ -1,11 +1,9 @@
 @import "tailwindcss";
 
 /* ==========================================================
-   Design Tokens — 4 mode combinations
-   Default = Light + Human (no classes on <html>)
-   .dark = Dark + Human
-   .machine = Light + Machine
-   .dark.machine = Dark + Machine
+   Design Tokens — light / dark
+   Default = Light (no class on <html>)
+   .dark = Dark
 
    Raw tokens use --t-* prefix to avoid collision with
    Tailwind's @theme which generates --color-* on :root.
@@ -51,7 +49,7 @@
   --t-status-shelved-text: #A1A1AA;
 }
 
-/* --- Dark + Human --- */
+/* --- Dark --- */
 .dark {
   --t-background: #09090B;
   --t-surface: #18181B;
@@ -84,39 +82,6 @@
   --t-status-shipped-text: #86EFAC;
   --t-status-shelved-bg: #27272A;
   --t-status-shelved-text: #71717A;
-}
-
-/* --- Light + Machine --- */
-.machine {
-  --t-background: #FAFAFA;
-  --t-surface: #FAFAFA;
-
-  --t-heading: #09090B;
-  --t-body: #52525B;
-  --t-muted: #71717A;
-
-  --t-border: #E4E4E7;
-
-  --t-glass-bg: transparent;
-  --t-glass-border: transparent;
-}
-
-/* --- Dark + Machine --- */
-.dark.machine {
-  --t-background: #09090B;
-  --t-surface: #09090B;
-
-  --t-heading: #22D3EE;
-  --t-body: #A1A1AA;
-  --t-muted: #71717A;
-
-  --t-cyan: #22D3EE;
-  --t-violet: #A78BFA;
-
-  --t-border: #27272A;
-
-  --t-glass-bg: transparent;
-  --t-glass-border: transparent;
 }
 
 /* ==========================================================
@@ -154,7 +119,7 @@ body {
   font-family: var(--font-sans);
 }
 
-/* Mode transitions — smooth 300ms fade between all modes */
+/* Theme transitions — smooth 300ms fade between light and dark */
 body,
 body * {
   transition: background-color 300ms ease, color 300ms ease, border-color 300ms ease;
@@ -207,28 +172,6 @@ body * {
   body, body * {
     transition: none !important;
   }
-}
-
-/* ==========================================================
-   Machine Mode — base styles
-   Components handle their own machine-mode rendering via
-   useTheme() hook. These are shared base styles only.
-   ========================================================== */
-
-/* All text becomes monospace in machine mode */
-.machine body {
-  font-family: var(--font-mono);
-  line-height: 1.8;
-}
-
-/* Simplify nav in machine mode */
-.machine nav {
-  position: relative !important;
-  background: transparent !important;
-  border: none !important;
-  box-shadow: none !important;
-  backdrop-filter: none !important;
-  -webkit-backdrop-filter: none !important;
 }
 
 /* ==========================================================

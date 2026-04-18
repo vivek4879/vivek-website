@@ -3,7 +3,6 @@
 import { useRef } from "react";
 import { motion, useScroll, useTransform } from "framer-motion";
 import Link from "next/link";
-import { useTheme } from "@/lib/theme-provider";
 import { projects, CARD_GRADIENTS } from "@/lib/projects";
 
 // ── Seeded PRNG (Mulberry32) ──────────────────────────────────
@@ -285,7 +284,6 @@ function MobileProjects() {
 // ── Main component ────────────────────────────────────────────
 
 export default function Projects() {
-  const { mode } = useTheme();
   const sectionRef = useRef<HTMLElement>(null);
   const { scrollYProgress } = useScroll({
     target: sectionRef,
@@ -296,50 +294,6 @@ export default function Projects() {
   const headingOpacity = useTransform(scrollYProgress, [0, 0.05], [0, 1]);
   const headingY = useTransform(scrollYProgress, [0, 0.05], [20, 0]);
 
-
-  if (mode === "machine") {
-    return (
-      <section ref={sectionRef} id="projects" className="px-6 py-8">
-        <div
-          className="mx-auto max-w-[700px]"
-          style={{ fontFamily: "var(--font-mono)" }}
-        >
-          <p className="text-muted">---</p>
-          <p className="mt-4 text-lg font-bold text-heading">## Projects</p>
-          {projects.map((p) => (
-            <div key={p.title} className="mt-6">
-              <p className="font-bold text-heading">
-                {p.title}{" "}
-                <a
-                  href={p.github}
-                  className="text-cyan underline"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
-                  [github]
-                </a>
-                {p.live && (
-                  <>
-                    {" "}
-                    <a
-                      href={p.live}
-                      className="text-cyan underline"
-                      target="_blank"
-                      rel="noopener noreferrer"
-                    >
-                      [live]
-                    </a>
-                  </>
-                )}
-              </p>
-              <p className="text-body">{p.description}</p>
-              <p className="text-muted">{p.tech.join(", ")}</p>
-            </div>
-          ))}
-        </div>
-      </section>
-    );
-  }
 
   // Desktop: scroll-driven animation
   // Mobile: static grid (detected via CSS, not JS — avoids hydration mismatch)

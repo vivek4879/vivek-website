@@ -47,8 +47,8 @@ export const projects: Project[] = [
   {
     title: "vivek-website",
     description:
-      "Personal portfolio — 4-mode theming, scroll-driven animations, security headers",
-    tech: ["Next.js", "Tailwind CSS", "Framer Motion"],
+      "Personal notebook — blog, lab, projects. Next.js + MDX + hand-rolled design tokens",
+    tech: ["Next.js", "Tailwind CSS", "MDX"],
     github: "https://github.com/vivek4879/vivek-website",
     live: "https://vivek-website-five.vercel.app",
   },

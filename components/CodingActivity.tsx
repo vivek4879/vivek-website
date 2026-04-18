@@ -23,7 +23,7 @@ const GITHUB_COLORS_DARK  = ["#161b22", "#0e4429", "#006d32", "#26a641", "#39d35
 
 
 export default function CodingActivity() {
-  const { mode, theme } = useTheme();
+  const { theme } = useTheme();
   const githubColors = theme === "dark" ? GITHUB_COLORS_DARK : GITHUB_COLORS_LIGHT;
   const [github, setGithub] = useState<GitHubData | null>(null);
   const [leetcode, setLeetcode] = useState<LeetCodeData | null>(null);
@@ -50,23 +50,6 @@ export default function CodingActivity() {
   const lcEasy = leetcode?.easy ?? 0;
   const lcMedium = leetcode?.medium ?? 0;
   const lcHard = leetcode?.hard ?? 0;
-
-  if (mode === "machine") {
-    return (
-      <section id="activity" className="px-6 py-8">
-        <div className="mx-auto max-w-[700px]" style={{ fontFamily: "var(--font-mono)" }}>
-          <p className="text-muted">---</p>
-          <p className="mt-4 text-lg font-bold text-heading">## Coding Activity</p>
-          <p className="mt-4 text-body">
-            GitHub: {contributions} contributions | {streak} day streak | {repos} repos
-          </p>
-          <p className="mt-2 text-body">
-            LeetCode: {lcSolved} solved ({lcEasy} easy, {lcMedium} medium, {lcHard} hard)
-          </p>
-        </div>
-      </section>
-    );
-  }
 
   return (
     <section id="activity" className="px-6 py-24 sm:py-32">
