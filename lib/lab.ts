@@ -12,6 +12,13 @@ export type LabItem = {
 
 export const labItems: LabItem[] = [
   {
+    id: "session-token-economics",
+    title: "Measuring Claude Code session economics",
+    description:
+      "Wrap + /start fresh, cold resume, or idle the terminal and keep typing tomorrow — these should have different cost and quality profiles, but I've never measured it. Plan: Stop hook that logs per-session token/cache metrics to a local CSV, analyse patterns across a few weeks, escalate to a controlled SDK-based A/B harness if the observational signal warrants it. Click through for the full write-up.",
+    status: "exploring",
+  },
+  {
     id: "callout-component",
     title: "Custom MDX <Callout> component",
     description:
@@ -53,13 +60,7 @@ export const labItems: LabItem[] = [
       "Pretext is Cheng Lou's text measurement + layout library — precise metrics without forcing a DOM measure in the hot path, manual line routing, width-tight multiline UI. Want to use it for something the browser can't do cheaply: a name/headline that auto-fits the viewport at any width (1px resolution, not clamp()), or a masonry-style card grid where heights come from the text, not the other way around. A good excuse to poke at the machinery underneath CSS text layout.",
     status: "idea",
   },
-  {
-    id: "session-token-economics",
-    title: "Measuring Claude Code session economics",
-    description:
-      "Wrap + /start fresh, cold resume, or idle the terminal and keep typing tomorrow — these should have different cost and quality profiles, but I've never measured it. Plan: Stop hook that logs per-session token/cache metrics to a local CSV, analyse patterns across a few weeks, escalate to a controlled SDK-based A/B harness if the observational signal warrants it. Click through for the full write-up.",
-    status: "idea",
-  },
+
 ];
 
 // ──────────────────────────────────────────────────────────────
