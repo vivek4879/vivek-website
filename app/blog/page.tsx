@@ -17,7 +17,7 @@ export default function BlogIndexPage() {
       <div className="relative z-[1]">
         <Navbar />
         <main>
-          <Blog posts={posts} />
+          <Blog posts={posts} showArchive={false} />
         </main>
         <Footer />
       </div>

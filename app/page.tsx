@@ -1,19 +1,21 @@
-import Hero from "@/components/Hero";
-import Navbar from "@/components/Navbar";
-import AboutMe from "@/components/AboutMe";
-import TechStack from "@/components/TechStack";
+import Header from "@/components/Header";
+import Today from "@/components/Today";
+import ProjectsPreview from "@/components/ProjectsPreview";
 import Blog from "@/components/Blog";
-import Projects from "@/components/Projects";
-import CodingActivity from "@/components/CodingActivity";
+import LabPreview from "@/components/LabPreview";
 import Footer from "@/components/Footer";
 import { getAllPosts } from "@/lib/posts";
 import { HOMEPAGE_BLOG_PREVIEW_COUNT } from "@/lib/blog-config";
+import { projects } from "@/lib/projects";
+import { labItems } from "@/lib/lab";
+
+const HOMEPAGE_PREVIEW_COUNT = 3;
 
 const jsonLd = {
   "@context": "https://schema.org",
   "@type": "Person",
   name: "Vivek Aher",
-  jobTitle: "Full-Stack Engineer",
+  jobTitle: "Software Engineer",
   url: "https://vivek-website-five.vercel.app",
   sameAs: [
     "https://github.com/vivek4879",
@@ -27,6 +29,8 @@ const jsonLd = {
 
 export default function Home() {
   const posts = getAllPosts().slice(0, HOMEPAGE_BLOG_PREVIEW_COUNT);
+  const previewProjects = projects.slice(0, HOMEPAGE_PREVIEW_COUNT);
+  const previewLab = labItems.slice(0, HOMEPAGE_PREVIEW_COUNT);
 
   return (
     <>
@@ -34,18 +38,14 @@ export default function Home() {
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
-      <div className="relative z-[1]">
-        <Navbar />
-        <main>
-          <Hero />
-          <AboutMe />
-          <Projects />
-          <TechStack />
-          <Blog posts={posts} />
-          <CodingActivity />
-        </main>
-        <Footer />
-      </div>
+      <main className="mx-auto flex max-w-2xl flex-col gap-16 px-6 py-24 sm:py-32">
+        <Header />
+        <Today />
+        <ProjectsPreview projects={previewProjects} />
+        <Blog posts={posts} />
+        <LabPreview items={previewLab} />
+      </main>
+      <Footer />
     </>
   );
 }
