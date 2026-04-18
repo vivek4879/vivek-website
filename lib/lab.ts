@@ -43,4 +43,18 @@ export const labItems: LabItem[] = [
       "The homepage Projects section shows 6 featured projects in a scroll-driven animation. The full list deserves its own page with a flat grid, search, and tag filtering. Lower priority than blog and Lab, but the data layer (lib/projects.ts) is already there.",
     status: "exploring",
   },
+  {
+    id: "human-machine-toggle",
+    title: "Human/Machine mode — a portfolio with no design",
+    description:
+      "Built this once and cut it. Idea: a toggle that strips the site to plain mono text — no glass, no gradients, no color, just semantic HTML rendered as if it were an llms.txt file. Kept as a standalone demo here rather than as a sitewide feature: gimmick in a notebook, legitimate question as a case study. The interesting bit is the argument underneath — what does the design layer actually contribute vs. the content it's wrapping? Rebuilding as a self-contained /lab page with the toggle, the code, and a short write-up of why it left the main site.",
+    status: "idea",
+  },
+  {
+    id: "pretext-typography",
+    title: "Typography experiment with chenglou/pretext",
+    description:
+      "Pretext is Cheng Lou's text measurement + layout library — precise metrics without forcing a DOM measure in the hot path, manual line routing, width-tight multiline UI. Want to use it for something the browser can't do cheaply: a name/headline that auto-fits the viewport at any width (1px resolution, not clamp()), or a masonry-style card grid where heights come from the text, not the other way around. A good excuse to poke at the machinery underneath CSS text layout.",
+    status: "idea",
+  },
 ];
