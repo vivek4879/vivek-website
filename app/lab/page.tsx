@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import LabList from "@/components/LabList";
-import { labItems } from "@/lib/lab";
+import { labItems, getLabDetailSlugs } from "@/lib/lab";
 
 export const metadata: Metadata = {
   title: "Lab — Vivek Aher",
@@ -11,6 +11,8 @@ export const metadata: Metadata = {
 };
 
 export default function LabPage() {
+  const detailSlugs = getLabDetailSlugs();
+
   return (
     <>
       <div className="relative z-[1]">
@@ -27,7 +29,7 @@ export default function LabPage() {
             didn&rsquo;t. Click any item to read more.
           </p>
           <div className="mt-12">
-            <LabList items={labItems} />
+            <LabList items={labItems} detailSlugs={detailSlugs} />
           </div>
         </main>
         <Footer />

@@ -1,5 +1,6 @@
 import type { MetadataRoute } from "next";
 import { getAllPosts } from "@/lib/posts";
+import { getLabDetailSlugs } from "@/lib/lab";
 
 const SITE_URL = "https://vivek-website-five.vercel.app";
 
@@ -40,5 +41,14 @@ export default function sitemap(): MetadataRoute.Sitemap {
     priority: 0.6,
   }));
 
-  return [...staticRoutes, ...postRoutes];
+  const labRoutes: MetadataRoute.Sitemap = Array.from(getLabDetailSlugs()).map(
+    (id) => ({
+      url: `${SITE_URL}/lab/${id}`,
+      lastModified: new Date(),
+      changeFrequency: "monthly",
+      priority: 0.5,
+    }),
+  );
+
+  return [...staticRoutes, ...postRoutes, ...labRoutes];
 }

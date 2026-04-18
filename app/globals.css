@@ -385,6 +385,12 @@ body * {
   white-space: pre-wrap;
 }
 
+.lab-item__read-more {
+  display: block;
+  margin-top: 1rem;
+  font-size: 0.8125rem;
+}
+
 /* ==========================================================
    High Contrast Mode
    ========================================================== */

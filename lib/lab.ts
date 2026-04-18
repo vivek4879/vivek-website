@@ -1,3 +1,6 @@
+import fs from "node:fs";
+import path from "node:path";
+
 export type LabStatus = "idea" | "exploring" | "building" | "shipped" | "shelved";
 
 export type LabItem = {
@@ -50,4 +53,46 @@ export const labItems: LabItem[] = [
       "Pretext is Cheng Lou's text measurement + layout library — precise metrics without forcing a DOM measure in the hot path, manual line routing, width-tight multiline UI. Want to use it for something the browser can't do cheaply: a name/headline that auto-fits the viewport at any width (1px resolution, not clamp()), or a masonry-style card grid where heights come from the text, not the other way around. A good excuse to poke at the machinery underneath CSS text layout.",
     status: "idea",
   },
+  {
+    id: "session-token-economics",
+    title: "Measuring Claude Code session economics",
+    description:
+      "Wrap + /start fresh, cold resume, or idle the terminal and keep typing tomorrow — these should have different cost and quality profiles, but I've never measured it. Plan: Stop hook that logs per-session token/cache metrics to a local CSV, analyse patterns across a few weeks, escalate to a controlled SDK-based A/B harness if the observational signal warrants it. Click through for the full write-up.",
+    status: "idea",
+  },
 ];
+
+// ──────────────────────────────────────────────────────────────
+// Filesystem helpers for long-form lab entries.
+//
+// Each lab item can have an optional MDX detail page at
+// content/lab/<id>.mdx. If present, /lab/[id] renders it using
+// the same MDX pipeline as blog posts, and the accordion gets
+// a "Read full entry →" link. The item's metadata (title,
+// description, status) always comes from labItems above — the
+// MDX file contains only the body.
+//
+// lib/lab.ts is imported only by server components today. Type
+// imports (`import type { LabItem }`) are safe in client code
+// because TS strips them; never add a runtime import of this
+// module from a "use client" component or node:fs will leak
+// into the client bundle (see lib/blog-config.ts for the fix).
+// ──────────────────────────────────────────────────────────────
+
+const LAB_CONTENT_DIR = path.join(process.cwd(), "content", "lab");
+
+export function getLabDetailSlugs(): Set<string> {
+  if (!fs.existsSync(LAB_CONTENT_DIR)) return new Set();
+  return new Set(
+    fs
+      .readdirSync(LAB_CONTENT_DIR)
+      .filter((f) => f.endsWith(".mdx"))
+      .map((f) => f.replace(/\.mdx$/, "")),
+  );
+}
+
+export function getLabDetailContent(id: string): string | null {
+  const filePath = path.join(LAB_CONTENT_DIR, `${id}.mdx`);
+  if (!fs.existsSync(filePath)) return null;
+  return fs.readFileSync(filePath, "utf8");
+}
