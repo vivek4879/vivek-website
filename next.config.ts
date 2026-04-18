@@ -1,13 +1,19 @@
 import path from "node:path";
 import type { NextConfig } from "next";
 
+// React's dev overlay and Fast Refresh need eval() and websocket connections.
+// Production stays strict.
+const isDev = process.env.NODE_ENV === "development";
+const scriptSrc = isDev ? "'self' 'unsafe-inline' 'unsafe-eval'" : "'self' 'unsafe-inline'";
+const connectSrc = isDev ? "'self' ws: wss:" : "'self'";
+
 const cspHeader = `
   default-src 'self';
-  script-src 'self' 'unsafe-inline';
+  script-src ${scriptSrc};
   style-src 'self' 'unsafe-inline' https://fonts.googleapis.com;
   font-src 'self' https://fonts.gstatic.com data:;
   img-src 'self' data: blob:;
-  connect-src 'self';
+  connect-src ${connectSrc};
   frame-ancestors 'none';
   base-uri 'self';
   form-action 'self';
