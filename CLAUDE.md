@@ -1,122 +1,101 @@
 # CLAUDE.md
 
-This is Vivek's personal portfolio website. See PORTFOLIO_SPEC.md for the full design spec.
+Vivek's personal site — **minimalist notebook** pattern (emilkowal.ski-style). Homepage is a calm text-forward hub; `/blog`, `/lab`, `/lab/[id]`, `/blog/[slug]`, `/projects` are the rooms. See `DECISIONS.md` (014) for the pivot rationale.
+
+Architectural spec note: `PORTFOLIO_SPEC.md` predates the notebook pivot and is out of date — trust `DECISIONS.md` entries 012–014 and this file for current direction.
 
 ## Quick Reference
 
-- **Stack**: Next.js (App Router) + Tailwind CSS + Framer Motion
-- **Palette**: Zinc base + cyan (#06B6D4) / violet (#8B5CF6) dual accent
+- **Stack**: Next.js 16.2.3 (App Router) + React 19 + Tailwind 4 + MDX (no framer-motion, no resend)
 - **Fonts**: Space Grotesk (headings), Inter (body), JetBrains Mono (mono accents)
-- **Key features**: Human/Machine mode toggle, light/dark mode, gradient mesh background, terminal-style cards, scroll-driven hero animation, scroll-driven project card animation, AI chat (Claude API)
-- **Design principle**: Glass aesthetic leads, terminal DNA supports. Premium product built by an engineer.
+- **Palette**: `--t-*` tokens, light + dark only. Cyan used sparingly for link hover.
+- **Design principle**: boring chrome, rich rooms. Per-route escalation — `/lab` entries can go wild; the core stays calm.
 
 ## Commands
-
-- `npm run dev` — local dev server
+- `npm run dev` — local dev (Turbopack)
 - `npm run build` — production build
-- `npm run lint` — linting
+- `npm run lint` — ESLint
 
-## Important Constraints
+## Important Constraints (still load-bearing)
 
-- Human/Machine toggle must use CSS class swap only (no DOM replacement) for SEO
-- All content must be in default HTML for crawlers
-- Gradient mesh blobs are decorative divs — never render text on canvas
-- Respect `prefers-reduced-motion` for all animations
-- Respect `prefers-contrast: more` — drop glassmorphism, use solid backgrounds
-- WCAG AA contrast in all 4 mode combinations
-- Mobile: min 44x44px touch targets, 16px min body text, no horizontal overflow
-- Hero scroll animation: simplified/disabled on mobile (use fade-in instead)
-- Dark mode flash prevention: blocking script in <head> reads localStorage before paint
-- Save theme + mode preferences in localStorage
-- Font loading: font-display: swap, preload critical fonts
-- Use Next.js <Image> component, not raw <img>
-- Glassmorphism: -webkit-backdrop-filter prefix for Safari, @supports fallback for older browsers
-- Contact form: honeypot spam protection, client + server validation
-- Security headers: CSP, X-Frame-Options, X-Content-Type-Options via next.config.ts
+- Semantic HTML for crawlers (no DOM replacement for mode swaps, etc.)
+- Respect `prefers-reduced-motion` and `prefers-contrast: more`
+- WCAG AA contrast in both themes
+- Mobile: 44×44 min touch targets, 16px min body text, no horizontal overflow
+- Dark-mode flash prevention: blocking script in `<head>` reads `localStorage.theme` before paint
+- `font-display: swap`, preload critical fonts
+- Next.js `<Image>` only, never raw `<img>`
+- Security headers in `next.config.ts`: CSP, X-Frame-Options DENY, nosniff, Referrer-Policy, Permissions-Policy. CSP is gated on `NODE_ENV` so dev allows `'unsafe-eval'` + `ws:` for React Fast Refresh; prod stays strict.
+- `lib/lab.ts` + `lib/posts.ts` use `node:fs` — only server components may runtime-import them. Client code uses `import type` only (see `lib/blog-config.ts` for the split pattern when a runtime value is needed in client code).
 
-## Build Progress
+## Architecture
 
-### Done
-- [x] Project scaffold (Next.js 16 + React 19 + Tailwind 4 + Framer Motion + tailwind-merge)
-- [x] Fonts — Space Grotesk, Inter, JetBrains Mono via `next/font/google`
-- [x] Color tokens — `--t-*` CSS vars for 4 modes (light/dark × human/machine)
-- [x] Theme provider — React Context + localStorage persistence + `useTheme()` hook
-- [x] Dark mode flash prevention — blocking `<script>` in `<head>`
-- [x] Navbar — glassmorphism, sun/moon toggle, HUMAN|MACHINE toggle, mobile hamburger + focus trapping
-- [x] Gradient mesh — 7-blob config-driven system, cursor tracking (desktop), CSS drift (mobile), grain overlay
-- [x] Hero section — name, terminal subtitle, tagline, CTAs, scroll-driven fade/scale animation
-- [x] Machine mode — component-level rendering (plain text), not CSS overrides
-- [x] About Me section — two-column (photo + text), responsive stack on mobile
-- [x] Under construction page deployed to production (main branch)
-- [x] Dev branch workflow — dev → preview deployments, main → production
-- [x] Tech Stack — bento-grid with glassmorphism cards, 6 categories
-- [x] Blog cards — glassmorphism, prop-driven, full-card `<Link>` to `/blog/[slug]`
-- [x] Blog MDX pipeline — `content/posts/*.mdx`, `lib/posts.ts` data layer, dynamic `/blog/[slug]` route, `/blog` index, `next-mdx-remote/rsc` + `remark-gfm` + `rehype-pretty-code` (Shiki dual-theme), hand-rolled `.prose-post` typography
-- [x] `turbopack.root` set in `next.config.ts` (silences workspace lockfile warning from stray `~/package-lock.json`)
-- [x] "View all posts →" link on homepage Blog section → `/blog` archive (conditional on posts ≥ 3)
-- [x] Lab page (`/lab`) — curated "things I want to build" list. Native `<details>` accordion (zero JS state), status pills (idea/exploring/building/shipped/shelved), data in `lib/lab.ts` as TS const array
-- [x] Navbar nav fix — route hrefs (`/lab`) use `<Link>`; hash hrefs (`#about`) scroll when on home, navigate to `/#about` from other pages. Previously all hrefs were hijacked by `querySelector().scrollIntoView()` which failed silently on non-home pages and for any route-style href.
-- [x] WRITING.md + LAB.md authoring guides at project root
-- [x] Coding Activity — terminal-style card, GitHub grid + LeetCode bars (placeholder data, API later). H2 heading removed (used to read "I ship code and sharpen fundamentals")
-- [x] Footer / Contact — contact form with honeypot, social links, terminal card (Resend API later)
+- **Homepage (`app/page.tsx`)**: `max-w-2xl` column. ThemeToggle (top-right) → Header → Today → ProjectsPreview (3) → Blog (3) → LabPreview (3) → Footer. No Navbar.
+- **Sub-pages (`/blog`, `/lab`, `/projects`, `/blog/[slug]`, `/lab/[id]`)**: minimal `Navbar` (name + 3 links + theme toggle) + page content (`max-w-2xl`) + `Footer`.
+- **Content pipelines**:
+  - Blog: `content/posts/*.mdx` → `lib/posts.ts` → `/blog` + `/blog/[slug]` (SSG).
+  - Lab: index in `lib/lab.ts` (TS array, source of truth for metadata). Optional long-form at `content/lab/<id>.mdx` — filesystem-detected via `getLabDetailSlugs()`. `/lab/[id]` SSG for any item with a matching MDX file. Accordion on `/lab` shows a "Read full entry →" link for those items.
+- **MDX rendering**: `next-mdx-remote/rsc` + `remark-gfm` + `rehype-pretty-code` (Shiki dual-theme). Shared by blog posts and lab detail pages. Typography via `.prose-post` in `globals.css`.
+- **Components**: `Header`, `Today` (editable copy inside), `ProjectsPreview`, `Blog`, `LabPreview`, `Navbar`, `ThemeToggle`, `Footer`, `ObfuscatedEmail`, `LabList`, `StatusBadge`.
+- **Theme provider**: 2 modes only (light/dark). `useTheme()` returns `{ theme, toggleTheme }`. State lives in React Context + localStorage; blocking head script handles first paint.
+- **Sitemap** (`app/sitemap.ts`): static routes + dynamic blog posts + dynamic lab detail pages.
 
-### Next Steps
-1. **Visual QA the dev-branch Vercel preview** before merging the open PR. Click through `/blog` → post → back-link AND `/lab` (expand items, check all 5 status colors, accordion animation, chevron rotation) in all 4 modes (light/dark × human/machine). Also click every Navbar link from a blog post to confirm the nav fix works (each should either scroll on home or route to home + hash / to `/lab`).
-2. **Write real first blog post** — replace `content/posts/hello-mdx.mdx` (pipeline-test post). See `WRITING.md` for the authoring workflow.
-3. **Populate the Lab** — `lib/lab.ts` has 5 seed items; edit/replace with real ones. See `LAB.md`.
-4. Projects section — scroll-driven card animation (built last, most complex)
-5. AI Chat — floating chat widget (Claude API via Haiku), system prompt with personal info
-6. SEO — llms.txt (JSON-LD + OG + sitemap already wired; sitemap includes `/`, `/projects`, `/lab` but NOT individual `/blog/*` routes yet — worth adding dynamic blog entries)
-7. `/projects` page — full project list (homepage shows top 6 in animation). Currently exists but uses a different wrapper pattern than `/blog` and `/lab` (no GradientMesh, no Footer) — worth normalizing when we touch it.
+## Branches
 
-### Key Architecture Notes
-- Machine mode: each component renders its own plain-text version via `useTheme()` — no global CSS overrides
-- Gradient mesh: CSS blobs, not WebGL (performance, bundle size, mobile)
-- Projects animation: 6 featured projects on homepage, rest at `/projects`. ~400-500vh scroll height, fixed positions (no Math.random), no doomscroll loop.
-- Color tokens use `--t-*` prefix to avoid collision with Tailwind's `@theme inline` which generates `--color-*`
-- AI Chat: Claude API (Haiku model) via Next.js API route. Floating widget bottom-right. System prompt defines personality/knowledge. Rate limited to control costs. Frontend built with other sections, API integration done last.
+- **`main`**: production. Currently still serves the under-construction page (last commit there is pre-rewrite). Do NOT push to main until the pivot is merged deliberately.
+- **`fix/gradient-mesh-mode-toggle`**: the old "dev" branch with the maximalist version. Superseded.
+- **`refactor/notebook-pivot`** (active): the notebook rewrite. Pushed to origin. No PR open. Vercel preview auto-deploys on push.
 
 ## Session Log
 
 ### 2026-03-26 — Project Init + Design System
-- Scaffolded project, reviewed spec, validated tech stack
-- Deployed under-construction page to production via Vercel
-- Connected GitHub repo, set up dev branch workflow
+- Scaffolded Next.js + Tailwind + Framer Motion. Deployed under-construction to main. Set up dev branch workflow.
 
 ### 2026-03-27 — Hero + About + Architecture Decisions
-- Built design system foundation (tokens, theme provider, flash prevention)
-- Built Navbar, GradientMesh, Hero, AboutMe components
-- Switched machine mode from CSS overrides to component-level rendering
-- Evaluated and rejected WebGL shaders (Three.js dependency too heavy)
-- Decided scroll-driven card animation for Projects (built last)
-- Started DECISIONS.md log (10 entries so far)
+- Design system foundation (tokens, theme provider, flash prevention). Built Navbar/GradientMesh/Hero/AboutMe. Started `DECISIONS.md`.
 
-### 2026-04-14 — Blog Pipeline Planning
-- No code changes — planning only
-- Reviewed blog state: `components/Blog.tsx` has 3 hardcoded placeholder posts, no `/blog/[slug]` route, "Read More →" is dead
-- Compared options: MDX-in-repo vs headless CMS vs plain Markdown vs Notion-sync
-- **Decided: MDX-in-repo** — matches engineer-blogger standard (Robinson, Comeau), version-controlled, portable forever, and spec already pointed here
-- Next session will be tutor-style learn-as-we-build walkthrough (switch output style, run `/start`)
-
-### 2026-04-14 — Blog MDX Pipeline Built (tutor-style walkthrough)
-- Installed `next-mdx-remote@6` + `gray-matter` + `remark-gfm` + `rehype-pretty-code` + `shiki`. Bumped Next 16.2.1 → 16.2.3 to clear high-severity DoS advisory (no `--force` — explicit `npm install next@16.2.3`)
-- Created `content/posts/hello-mdx.mdx` — pipeline-test post exercising frontmatter, GFM list, autolink, code block
-- Built `lib/posts.ts` — owns all filesystem access. Two return types: `Post` (no body, for lists) vs `PostWithContent` (for detail). Throws at build time on missing required frontmatter (`title`/`date`/`excerpt`). Drafts filtered only when `NODE_ENV === "production"`. Sort by `date.localeCompare` works because schema enforces YYYY-MM-DD strings
-- Refactored `components/Blog.tsx` to be prop-driven; whole card is now `<Link>` to `/blog/[slug]`. Server component `app/page.tsx` calls `getAllPosts().slice(0, 3)` and passes plain JSON over the server/client boundary
-- Built `app/blog/[slug]/page.tsx` with `generateStaticParams` (SSG, every post pre-rendered) + `generateMetadata` (per-post `<title>`, description, OG `article:tag`). MDX compiled via `next-mdx-remote/rsc` with `remark-gfm` + `rehype-pretty-code` (Shiki dual-theme: `github-light` + `github-dark`, swapped via CSS vars on `.dark`)
-- TS plugin tuple inference required `as Pluggable[]` cast
-- Built `app/blog/page.tsx` — full archive, reuses `<Blog>` with all posts (not just slice of 3)
-- Hand-rolled `.prose-post` typography in `globals.css` (~150 lines using existing `--t-*` tokens) instead of `@tailwindcss/typography` — plugin defaults would fight the existing token system
-- Set `turbopack.root` in `next.config.ts` to silence workspace-lockfile warning (stray `~/package-lock.json` was making Next infer wrong root)
-- Production build passes: 13 static pages, `/blog/hello-mdx` pre-rendered. Dev curl to `/blog/hello-mdx` returned HTTP 200 with full MDX render confirmed
-- Logged DECISIONS.md entry 012 with schema choices (slug-from-filename, YYYY-MM-DD strings, fail-loud validation) and the typography tradeoff
+### 2026-04-14 — Blog MDX Pipeline
+- Built the pipeline: `content/posts/*.mdx`, `lib/posts.ts`, `/blog/[slug]`, dual-theme Shiki, hand-rolled `.prose-post`. Logged DECISIONS 012.
 
 ### 2026-04-14 — Lab Page + Navbar Fix + Polish
-- Planned, then built `/lab` — a public "things I want to build" accordion list, data in `lib/lab.ts` (TS const array), status pills (idea → exploring → building → shipped → shelved), native `<details>`/`<summary>` for the accordion (semantic, keyboard-accessible, zero JS state, page stays server component), chevron rotates 90° on `[open]` via CSS. Status colors as CSS tokens in `globals.css` — 5 bg/text pairs for light + 5 for dark.
-- Added "View all posts →" link on homepage Blog section → `/blog`. Conditional on `posts.length >= HOMEPAGE_BLOG_PREVIEW_COUNT` (extracted to `lib/blog-config.ts` — not `lib/posts.ts` because importing from a module that uses `node:fs` into a `"use client"` component drags `node:fs` into the client bundle and breaks the build. Type-only imports are safe; runtime imports are not.)
-- Fixed Navbar for good. It was hijacking every click with `preventDefault()` + `document.querySelector(href).scrollIntoView()` — worked for hash anchors on the homepage but (a) failed silently when the hash target didn't exist on the current page (e.g., `About` from a blog post), and (b) made route-style hrefs like `/lab` a dead click since `querySelector("/lab")` is an invalid selector. Rewrote to use Next `<Link>` + a `resolveHref` helper that converts `#foo` → `/#foo` when not on home, and a `handleHashScroll` that only intercepts scroll behavior on the homepage. Logo also wrapped in `<Link href="/">`.
-- Removed "I ship code and sharpen fundamentals" h2 from `CodingActivity`. Eyebrow label "Activity" kept; spacing adjusted. Flagged: section lost a semantic h2; screen readers will skip it. Fix later if needed.
-- Cleaned up lint: split a deliberately-unused destructure in `lib/posts.ts` into an explicit field projection (dropped `_content` unused warning). Added a block-level `eslint-disable react-hooks/set-state-in-effect` around the theme-provider init effect with a comment explaining why — setState-in-effect is intentional because localStorage only exists on the client; blocking `<script>` in `<head>` handles visual flash prevention before hydration.
-- Created `LAB.md` + `WRITING.md` authoring guides at project root.
-- Logged DECISIONS.md entry 013 (public Lab page, single source of truth, native `<details>`, status tokens, client/server bundle bug).
-- Final pass: `tsc --noEmit` clean, `npm run lint` clean, `npm run build` clean (14 routes, `/lab` static, `/blog/hello-mdx` SSG-prerendered).
+- Public `/lab` accordion (TS const array, native `<details>`, status tokens). Navbar hash/route fix. Logged DECISIONS 013.
+
+### 2026-04-17 — Notebook Pivot (full rewrite)
+**Decision:** drop the maximalist portfolio (gradient mesh + terminal cards + Human/Machine toggle + scroll animations). Adopt emilkowal.ski-style minimal hub with rich per-route experimental zones. Framing: "a notebook — projects, writing, experiments," not a portfolio. Logged DECISIONS 014 before any code churn.
+
+**Shipped on `refactor/notebook-pivot`:**
+- Removed Human/Machine mode system-wide (theme-provider, CSS tokens, blocking script, all component machine branches). Theme system is now light/dark only.
+- Removed GradientMesh from all pages. Deleted the component. Pages render on a plain token background.
+- Rewrote homepage: Header + Today + ProjectsPreview + Blog + LabPreview + Footer, single `max-w-2xl` column. ThemeToggle stays (extracted from Navbar) top-right.
+- Rewrote Navbar as a minimal server component: name-home-link + `writing / lab / projects` + ThemeToggle. No hamburger, no sticky glass, no focus trap. Removed entirely from homepage.
+- Rewrote `/projects` as a flat text-first list. Dropped card gradients.
+- Rewrote `/blog` and `/lab` for consistent `max-w-2xl` layout, plain h1 + subtitle, no cyan eyebrows.
+- Redesigned Blog component to minimal title/date rows. Added `showArchive` + `showLabel` props so `/blog` archive doesn't self-link or double-heading.
+- Killed contact form + Resend plumbing. Footer is now obfuscated email (client-assembled after hydration) + GitHub/LinkedIn/LeetCode links.
+- Deleted orphaned components (Hero, AboutMe, TechStack, CodingActivity, Projects-scroll), API routes (`/api/contact`, `/api/github`, `/api/leetcode`), `hello-mdx.mdx` pipeline-test post, `CARD_GRADIENTS` export.
+- `npm uninstall framer-motion resend` (10 packages). `npm audit` clean.
+- Added sitemap dynamic entries for blog posts and lab detail pages (closes old SEO gap).
+- Dev-mode CSP loosening: `'unsafe-eval'` + `ws:` gated on `NODE_ENV === "development"`. Production CSP unchanged.
+- Queued `/lab` ideas: Human/Machine toggle as standalone case study, pretext typography experiment.
+- **Built lab deep-dive pipeline**: `/lab/[id]` dynamic route mirroring the blog MDX pipeline. Long-form entries live at `content/lab/<id>.mdx`; filesystem auto-detects them and lights up the accordion's "Read full entry →" link. First detail page shipped: `session-token-economics` — the full write-up on measuring Claude Code session cost/quality tradeoffs.
+- Net diff across the pivot: **≈ −2,000 lines**. 12 commits, all on `refactor/notebook-pivot`, pushed to origin. Build + tsc + lint clean at `5162b1c`.
+
+**Cleanup during the pivot (non-code):**
+- Deleted stray `~/package.json`, `~/package-lock.json`, and `~/node_modules` (~821 MB) that were confusing Turbopack's workspace detection. Turbopack dev now resolves tailwindcss correctly.
+- Rotate-candidates (visible in tool output this session): `RESEND_API_KEY` and `GITHUB_TOKEN` from `.env.local`. Still gitignored, but consider rotating if treating this conversation as sensitive.
+
+**Visual QA completed on dev:** homepage composition, `/blog` layout, `/lab` heading, theme toggle on every page, `/lab/session-token-economics` detail page.
+
+### Next Steps (pick up here tomorrow)
+1. **Continue design / content iteration on `refactor/notebook-pivot`.** User plans more changes; open-ended.
+2. **Open PR + merge decision** — once the branch feels finished, decide: merge to `main` directly (replace under-construction with new site as production), or set up a new `dev` branch that takes over preview deploys.
+3. **Populate content.** Structure implies 3+ items in each of Projects / Writing / Lab on the homepage. Projects has 8 (fine). Writing has 1 real post (`hackathon-win-with-claude-code`). Lab has 7 items. Writing is the thinnest — next post bumps it from sparse-reads-as-empty to sparse-reads-as-disciplined.
+4. **Deep-dive pages for queued lab items** — Human/Machine case study, pretext experiment. Pipeline is already built; just drop `content/lab/human-machine-toggle.mdx` etc. and the page lights up.
+5. **Token-economics Stop hook** — implement the observational measurement plan described in `content/lab/session-token-economics.mdx`. Would verify which observables `Stop` hook actually receives in Claude Code first.
+6. **Revisit accent palette** — cyan is a carryover from the maximalist era. Consider a single quieter accent or monochrome with one pop color as a dedicated polish step.
+7. **AI chat widget** (from original roadmap) — Claude Haiku via API route, floating bottom-right. Still on the long-term list but not urgent.
+
+### Known stale
+- `PORTFOLIO_SPEC.md`: written for the maximalist vision. Keep around for history; don't trust it for current state.
+- `LAB.md`, `WRITING.md`: authoring guides; may need light updates now that lab has detail pages too.
+- Old `fix/gradient-mesh-mode-toggle` branch exists on origin. Can be deleted after the pivot PR merges.
