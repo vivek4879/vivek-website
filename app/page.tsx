@@ -4,6 +4,7 @@ import ProjectsPreview from "@/components/ProjectsPreview";
 import Blog from "@/components/Blog";
 import LabPreview from "@/components/LabPreview";
 import Footer from "@/components/Footer";
+import ThemeToggle from "@/components/ThemeToggle";
 import { getAllPosts } from "@/lib/posts";
 import { HOMEPAGE_BLOG_PREVIEW_COUNT } from "@/lib/blog-config";
 import { projects } from "@/lib/projects";
@@ -38,7 +39,10 @@ export default function Home() {
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
-      <main className="mx-auto flex max-w-2xl flex-col gap-16 px-6 py-24 sm:py-32">
+      <div className="mx-auto flex w-full max-w-2xl justify-end px-6 pt-8">
+        <ThemeToggle />
+      </div>
+      <main className="mx-auto flex max-w-2xl flex-col gap-16 px-6 pt-8 pb-24 sm:pb-32">
         <Header />
         <Today />
         <ProjectsPreview projects={previewProjects} />

@@ -4,6 +4,7 @@ import type { Post } from "@/lib/posts";
 type BlogProps = {
   posts: Post[];
   showArchive?: boolean;
+  showLabel?: boolean;
 };
 
 function formatDate(iso: string): string {
@@ -15,18 +16,24 @@ function formatDate(iso: string): string {
   });
 }
 
-export default function Blog({ posts, showArchive = true }: BlogProps) {
+export default function Blog({
+  posts,
+  showArchive = true,
+  showLabel = true,
+}: BlogProps) {
   if (posts.length === 0) return null;
 
   return (
-    <section aria-labelledby="writing">
-      <h2
-        id="writing"
-        className="mb-6 text-xs uppercase tracking-wider text-muted"
-        style={{ fontFamily: "var(--font-mono)" }}
-      >
-        Writing
-      </h2>
+    <section aria-labelledby={showLabel ? "writing" : undefined}>
+      {showLabel && (
+        <h2
+          id="writing"
+          className="mb-6 text-xs uppercase tracking-wider text-muted"
+          style={{ fontFamily: "var(--font-mono)" }}
+        >
+          Writing
+        </h2>
+      )}
       <ul className="flex flex-col gap-5">
         {posts.map((post) => (
           <li key={post.slug}>

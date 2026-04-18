@@ -37,13 +37,6 @@ export const labItems: LabItem[] = [
     status: "exploring",
   },
   {
-    id: "projects-archive-page",
-    title: "Full /projects archive with filtering",
-    description:
-      "The homepage Projects section shows 6 featured projects in a scroll-driven animation. The full list deserves its own page with a flat grid, search, and tag filtering. Lower priority than blog and Lab, but the data layer (lib/projects.ts) is already there.",
-    status: "exploring",
-  },
-  {
     id: "human-machine-toggle",
     title: "Human/Machine mode — a portfolio with no design",
     description:
