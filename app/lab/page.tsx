@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
 import Navbar from "@/components/Navbar";
-import GradientMesh from "@/components/GradientMesh";
 import Footer from "@/components/Footer";
 import LabList from "@/components/LabList";
 import { labItems } from "@/lib/lab";
@@ -14,7 +13,6 @@ export const metadata: Metadata = {
 export default function LabPage() {
   return (
     <>
-      <GradientMesh />
       <div className="relative z-[1]">
         <Navbar />
         <main className="px-6 py-24 sm:py-32">

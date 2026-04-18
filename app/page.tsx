@@ -6,7 +6,6 @@ import Blog from "@/components/Blog";
 import Projects from "@/components/Projects";
 import CodingActivity from "@/components/CodingActivity";
 import Footer from "@/components/Footer";
-import GradientMesh from "@/components/GradientMesh";
 import { getAllPosts } from "@/lib/posts";
 import { HOMEPAGE_BLOG_PREVIEW_COUNT } from "@/lib/blog-config";
 
@@ -35,7 +34,6 @@ export default function Home() {
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
-      <GradientMesh />
       <div className="relative z-[1]">
         <Navbar />
         <main>

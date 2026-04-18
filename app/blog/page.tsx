@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
 import Navbar from "@/components/Navbar";
-import GradientMesh from "@/components/GradientMesh";
 import Footer from "@/components/Footer";
 import Blog from "@/components/Blog";
 import { getAllPosts } from "@/lib/posts";
@@ -15,7 +14,6 @@ export default function BlogIndexPage() {
 
   return (
     <>
-      <GradientMesh />
       <div className="relative z-[1]">
         <Navbar />
         <main>

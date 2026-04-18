@@ -6,7 +6,6 @@ import remarkGfm from "remark-gfm";
 import rehypePrettyCode, { type Options as PrettyCodeOptions } from "rehype-pretty-code";
 import type { Pluggable } from "unified";
 import Navbar from "@/components/Navbar";
-import GradientMesh from "@/components/GradientMesh";
 import Footer from "@/components/Footer";
 import { getAllSlugs, getPostBySlug } from "@/lib/posts";
 
@@ -67,7 +66,6 @@ export default async function BlogPostPage({
 
   return (
     <>
-      <GradientMesh />
       <div className="relative z-[1]">
         <Navbar />
         <main className="px-6 py-24 sm:py-32">
