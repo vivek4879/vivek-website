@@ -102,10 +102,45 @@ Architectural spec note: `PORTFOLIO_SPEC.md` predates the notebook pivot and is 
 **Uncommitted work on disk:**
 - `components/ObfuscatedEmail.tsx` — contact email changed from `vivek4879@gmail.com` → `vmaher2325@gmail.com`. Verified no other contact-email occurrences; all remaining `vivek4879` strings are the GitHub handle.
 
+### 2026-04-19 (later) — Pretext architecture investigated; commits cleaned up
+
+**Housekeeping shipped:**
+- Committed `components/ObfuscatedEmail.tsx` email change (`8c5352b`).
+- Committed prior session's CLAUDE.md log (`9bf3d57`).
+- Branch is now 3 commits ahead of origin, working tree clean. **Not pushed yet.**
+
+**Long teaching detour on MDX** — what an AST is, mdast vs hast vs mdxast, remark/rehype as tree→tree transforms, MDX as compiler-vs-format-vs-ecosystem, why we pay for MDX (optionality) over plain Markdown despite not using JSX-in-MDX yet. Useful general grounding; no code touched.
+
+**CRITICAL FINDING — pretext is NOT what the prior session log implied.** Read the actual `chenglou/pretext` README via `gh repo view`. It is **a text measurement and layout primitive**, not a physics framework. It does not animate, does not move shapes, does not "reflow text around moving physics shapes" by itself. What it does:
+- `prepare()` + `layout()` — measures total height of a paragraph at a given width, *without* triggering DOM reflow (uses canvas font metrics for measurement).
+- `prepareWithSegments()` + `layoutNextLineRange()` — iterator API: "give me the next line that fits in width W starting at cursor C." Width can change between calls. The README's headline example is exactly the floated-image-text-wrap pattern we want, applied to a static image.
+
+**What this means for `/lab/credo` architecture (load this with /start next session):**
+
+The MVP requires assembling **three layers**, not "install a library and configure it":
+
+| Layer | Job | Choice |
+|---|---|---|
+| **Layout** | Where lines break each frame | `chenglou/pretext` (decided) |
+| **Physics** | Move the chaotic scraps | Hand-rolled ~50 lines (decided — see below) |
+| **Render** | Draw text + scraps every frame | `<canvas>` + `requestAnimationFrame` |
+
+Per-frame loop: physics tick → scraps have new `{x, y, w, h}` → for each y-band of the poem column, compute available width(s) given which scraps occupy that y → call `layoutNextLineRange` for each line → `ctx.fillText` line + draw scraps.
+
+**Physics layer decision:** hand-roll, don't pull Matter.js. Each scrap is `{x, y, vx, vy, angle, omega}`, update each frame, wrap at edges. No collisions needed (scraps can overlap each other freely; they only "exist" as obstacles to the poem's layout pass). Roughly 50 lines. Saves ~80kb dependency. Add Matter.js later only if V2 ("two poems meeting") demands true rigid-body interaction.
+
+**Architectural framing — also decided:** `/lab/credo` will **not** use the MDX detail-page pipeline. It's an experiment that's 100% interactivity with no surrounding prose — MDX's prose-default is overhead. New custom route at `app/lab/credo/page.tsx` with a client component for the canvas. Bypasses `/lab/[id]`. Update `lib/lab.ts` to point its accordion link to `/lab/credo` instead of the detail-page pattern.
+
+**Why pretext is the right primitive (not a framework):** "DOM-free" is the *load-bearing* property. Touching DOM for measurement 60×/second destroys frame budget. Pretext sidesteps that by computing layout in pure JS using canvas font metrics. Whole experiment is feasible *because* the library is this narrow.
+
 **Next session (planned in pair-programming output style):**
-1. **Spike `/lab/credo` "Keep your head" MVP** with `chenglou/pretext`. First pass: install library, get Kipling stanza 1 rendering cleanly, then animate one noise element reflowing around the poem. Validate the *feeling* before going deeper.
-2. Commit the email change + push `refactor/notebook-pivot` (currently 1 commit ahead of origin + uncommitted email edit).
-3. After MVP lands: evaluate V2 ("two poems meeting") feasibility given what was learned.
+1. **Step 1 — route shell + static Kipling render.** Create `app/lab/credo/page.tsx` (server) + `components/Credo.tsx` (client). Get Kipling stanza 1 rendering cleanly on canvas via `prepare` + `layoutWithLines` at a fixed width. No physics, no animation. Validate font metrics match the rest of the site (probably Space Grotesk or Inter — pick during the spike).
+2. **Step 2 — one drifting scrap + reflow.** Add a single rectangular obstacle that moves across the canvas. Per frame, recompute the poem layout using `layoutNextLineRange` with width narrowed for y-bands the scrap occupies. Validate the *feeling*: does the poem reflow gracefully or does it jitter?
+3. **Step 3 — multiple scraps + the "noise" content.** Once one scrap reflows cleanly, add 5–10 with varied content (notification text, headlines, alerts). Tune motion to feel chaotic-but-not-frantic.
+4. **Step 4 — `prefers-reduced-motion` fallback.** Static layout: poem rendered cleanly, scraps frozen in arranged positions. Required by site-wide accessibility constraint.
+5. **Step 5 — wire `lib/lab.ts`** so the `credo` accordion item links to `/lab/credo`.
+
+After MVP lands: evaluate V2 ("two poems meeting") feasibility given what was learned about pretext's rough edges.
 
 ### Next Steps (deferred / longer-horizon)
 1. **Open PR + merge decision** — once `refactor/notebook-pivot` feels finished, decide: merge to `main` directly (replace under-construction), or set up a new `dev` branch for preview deploys.
