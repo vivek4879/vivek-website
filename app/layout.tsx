@@ -50,18 +50,16 @@ export const metadata: Metadata = {
 };
 
 // Blocking script that runs before the browser paints.
-// Reads localStorage and sets .dark / .machine on <html> immediately.
+// Reads localStorage and sets .dark on <html> immediately.
 // This prevents the white flash for dark mode users.
 const themeScript = `
   (function() {
     try {
       var theme = localStorage.getItem('theme');
-      var mode = localStorage.getItem('mode');
       if (!theme) {
         theme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
       }
       if (theme === 'dark') document.documentElement.classList.add('dark');
-      if (mode === 'machine') document.documentElement.classList.add('machine');
     } catch (e) {}
   })();
 `;

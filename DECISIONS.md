@@ -261,3 +261,44 @@ Documenting the why behind every significant decision in this project.
 - **Intentionally deferred**: per-item `:target` highlighting, filtering by status, RSS feed, MDX-authored items. All easy adds when they're actually needed; none of them needed at v1.
 
 **Runtime bug caught during implementation:** importing a constant from `lib/posts.ts` (which imports `node:fs`) into a `"use client"` component drags `node:fs` into the client bundle and breaks the build. Fix: split runtime values into a node-free config module (`lib/blog-config.ts`). Type-only imports (`import type { ... }`) are stripped at compile and remain safe.
+
+---
+
+## 014 — Pivot from Maximalist Portfolio to Minimalist Notebook
+
+**Problem:** The site as built had accumulated too many competing visual identities — gradient mesh + terminal cards + glassmorphism + cyan/violet dual accent + Human/Machine toggle + scroll-driven hero + planned scroll-driven projects. Each decision was defensible in isolation; together they read as incoherent. Separately, the homepage was portfolio-brag energy (bento grids, progress bars, contribution heatmaps, scroll reveals) when what I actually want is a site I can keep experimenting on for years — a playground, not a storefront. The Projects scroll-animation (planned but unbuilt) hides content behind scroll friction when the actual job is "let a visitor scan, compare, click." And a contact form + custom Coding Activity card + dual-mode machine rendering each added maintenance surface with negligible user value.
+
+**Options considered:**
+1. **Full Newsprint rewrite** — adopt a single opinionated aesthetic (editorial, serif, zero radius, grayscale, light-only). Maximally cohesive, but aesthetically rigid — every future experiment has to conform to the paper metaphor — and discards ~3 weeks of shipped work.
+2. **Subtract from current** — keep the glass + terminal aesthetic, cut the noise (gradient mesh, H/M toggle, projects animation, tech stack bento, coding activity). Less churn, but preserves a design language that's already crowded even after cuts.
+3. **Minimalist notebook (emilkowal.ski-style)** — boring chrome, rich experimental rooms. Homepage is a short, text-forward hub (header → Today → Projects → Writing → Lab → footer); `/lab` and blog posts are where visual personality lives, each free to have its own aesthetic. Per-route escalation keeps the core bundle lean while allowing any single experiment to pull in heavier deps.
+
+**Choice:** Option 3.
+
+**Reasoning:**
+- **Matches the actual goal.** I want a site I'll keep iterating on for years — new tech, new design experiments — without rebuilding the whole thing every time. A rigid aesthetic (Option 1) fights that. A crowded aesthetic (Option 2) already has no room for new ideas. A minimal core + isolated experimental zones (Option 3) is the architecture that accommodates whatever comes next.
+- **Content over presentation.** At my career stage, a visitor judging the site needs to see the work, not be impressed by its frame. Emil's homepage is boring; his `/ui` page is wild. That contrast — calm hub, crafted rooms — is the right signal for an engineer figuring things out in public.
+- **Per-route escalation scales.** Next.js code-splits per route. Any future `/lab/X` demo that needs spring physics, WebGL, or a text layout engine (e.g., chenglou/pretext) can pull in heavy deps without touching the homepage bundle. The minimalism is a default, not a ceiling.
+- **Subtraction isn't free but it's cheaper than the alternative.** Full rewrite = 2–3 weeks, discards the MDX pipeline, `/lab`, navbar fix, and this decisions log. Option 3 reuses all of that; the rewrite is mostly deletion + a new homepage composition.
+- **Cringe-check on identity claims.** Every "thread" I tried on (learning the machine / studying the craft / software explained to myself) felt performative at this career stage. Reframing the site as a *notebook* sidesteps identity claims entirely — I'm describing what the site *is*, not what I am. The pattern of work over months becomes the identity, not the tagline.
+- **Animation library isn't load-bearing.** Everything the current site does with `framer-motion` (hero scroll animation, projects scroll reveal) is being cut. Remaining micro-interactions (hover, focus, theme swap, page transitions) are handled by CSS + the native View Transitions API. Dropping framer-motion saves ~35KB and forces a CSS-first discipline that produces better-performing animations anyway. Add it back only if a specific `/lab` item demands physics or gestures — local to that route.
+
+**Implementation notes:**
+- **Reference site:** emilkowal.ski — minimal homepage, rich sub-pages. Lift the *architecture and restraint*, not the exact palette or typography.
+- **Homepage composition:** Header (name + one-sentence notebook framing) → Today (1–2 lines of current focus) → Projects (3 items + "show more" to `/projects`) → Writing (3 items + "show more" to `/blog`) → Playground (3 items + "show more" to `/lab`) → Footer (obfuscated email + socials).
+- **Cuts:** `components/GradientMesh.tsx`, `Hero.tsx`, `AboutMe.tsx`, `TechStack.tsx`, `CodingActivity.tsx`, `Projects.tsx` (scroll-animation version); the contact form `app/api/*`; Human/Machine rendering branches across every component; `framer-motion` and `resend` from `package.json`. No `/about` page.
+- **Preserved:** MDX blog pipeline (`lib/posts.ts`, `/blog`, `/blog/[slug]`), `/lab`, dark/light toggle, security headers, `.prose-post` typography, existing blog posts and lab items.
+- **New components:** `Header.tsx`, `Today.tsx`, `ObfuscatedEmail.tsx`.
+- **Navbar:** removed from homepage entirely; a minimal version remains on sub-pages (`/blog`, `/lab`, `/projects`, `/blog/[slug]`).
+- **Theme provider:** simplified from 4 modes (light/dark × human/machine) to 2 (light/dark). Human/Machine moves to `/lab` as a self-contained case-study entry.
+- **Pretext:** queued as a separate `/lab` entry — a typography experiment, not plumbed into the blog.
+- **Email obfuscation:** `ObfuscatedEmail` component assembles `mailto:` on the client via `useEffect`. Static HTML shows "email" to scrapers; hydrated clients see the live address. Not bulletproof against headless browsers, but kills ~80% of lazy harvesters at zero ongoing cost.
+- **Security:** `next.config.ts` headers (CSP, X-Frame-Options `DENY`, nosniff, Referrer-Policy, Permissions-Policy) already in place and preserved. Add `rel="noopener noreferrer"` audit on all external links. Re-run `npm audit` after removing `framer-motion` and `resend`.
+- **Sitemap gap:** current `app/sitemap.ts` omits individual `/blog/*` routes — fix during this rewrite by generating entries dynamically from `getAllPosts()`.
+- **Rebuild order** (each step leaves dev shippable): log this decision → remove Human/Machine mode → remove GradientMesh → build Header + Today → rewrite `app/page.tsx` → rewrite Footer with obfuscated email → simplify/remove Navbar → rewrite `/projects` as a list → prune CSS tokens and delete dead components → uninstall unused packages → queue H/M + pretext as `/lab` entries → visual QA in both themes → PR.
+- **Populating commitment:** 3 projects, 3 blog posts, 3 lab items minimum visible on the homepage before this can be considered done. Architecture scales to more; fewer reads as thin.
+
+**What this decision is *not*:**
+- Not a commitment to minimalism forever. It's a commitment to a minimal *core*; individual sub-pages and `/lab` experiments can be as visually ambitious as they want.
+- Not a rejection of framer-motion as a library. It's a rejection of framer-motion as a *sitewide default* for a site whose remaining animations are all CSS-tractable.
+- Not a finalization of the aesthetic. Palette, typography scale, and exact layout will evolve. The architecture (boring chrome, rich rooms, per-route escalation) is the load-bearing decision; the visuals are tuning on top.

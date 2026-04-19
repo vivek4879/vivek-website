@@ -1,0 +1,63 @@
+## The question
+
+Every Claude Code session costs tokens. The way I end and resume a session seems like it should matter: wrapping and starting fresh the next day vs. just picking up where I left off vs. leaving the terminal open and typing into the same conversation tomorrow. The cost feels different between those, the quality probably varies too, but neither is something I've actually measured. This entry is the plan for turning the hunch into a dataset.
+
+## Why it matters
+
+For a single task the answer is "it doesn't matter much." For a year of development, the compounding difference between "always wraps" and "always resumes cold" could be real money and real latency on first prompts. I want to know the shape of the tradeoff, not guess at it.
+
+And the deeper question isn't just cost — it's cost *per useful outcome*. A cheaper session that reproduces already-solved work or misses nuance from a prior conversation isn't actually cheaper. Quality is the harder half of the measurement.
+
+## Three approaches, from cheapest to most rigorous
+
+### 1. Lightweight observational — a Stop hook + CSV
+
+Wire a Claude Code `Stop` hook that writes each session's final metrics — total tokens in/out, cache hit rate, wall time, commit count, branch — to a local CSV. Zero friction per session, you just work normally and the numbers accumulate. After a few weeks, tag each row as `wrap-start`, `cold-resume`, or `idle-continue` and compare distributions.
+
+**Caveats.** I'd need to verify exactly what observables the `Stop` hook receives in the current Claude Code version. Token and cache numbers may or may not be passed to hooks; if not, fallback is pasting the `/cost` summary manually at end of session (tedious but works). Also: this only measures what Claude *did*, not whether the work was good.
+
+### 2. Rigorous A/B — an SDK harness
+
+A Python script using the Anthropic SDK directly, constructing two identical scenarios with the same starting system prompt and tool set:
+
+- **Scenario A (resume)**: feed a long pre-recorded transcript that mimics "yesterday's session" + new follow-up task.
+- **Scenario B (wrap-start)**: feed only a compressed CLAUDE.md-style summary + the same follow-up task.
+
+Log `input_tokens`, `output_tokens`, `cache_read_input_tokens`, `cache_creation_input_tokens` from every API response. Optionally rubric the output against a gold answer.
+
+This gives controlled A/B data at the cost of real eval design work — what's the standardized task, what's the gold answer, what rubric rates quality? It's the right answer if the question becomes a serious research question. It's overkill if I just want a rough ratio.
+
+### 3. Hybrid — start observational, escalate selectively
+
+Ship the Stop hook first. Run it for a few weeks. If the data shows a clear signal, stop and trust it. If the signal is noisy or surprising, *then* invest in the SDK harness to isolate variables. This is the path I'd actually take — lets the cheap measurement tell me whether the expensive one is worth building.
+
+## Honest limitations
+
+- **Task variance dominates.** In observational data I can't hold "what work gets done" constant. If resume-style sessions happen to tackle harder tasks, they'll look more expensive even if the *pattern* isn't the cause. Matching pairs by commit diff size or by task type reduces this but doesn't eliminate it.
+- **The 5-minute prompt cache TTL is load-bearing.** Anthropic's prompt cache decays after ~5 min of inactivity. Resume-within-5-min is cache-hit cheap; resume-next-day is cache-miss expensive. So the answer isn't binary "resume cheap or costly" — it's a function of the gap length. Any useful analysis has to bucket by resume latency.
+- **Subjective quality is the hardest part.** The cheapest session that produces subtly worse code, or that forgets a nuance from yesterday, isn't actually cheaper — it just shifted the cost to me. Rubricizing quality across sessions is hard; humans disagree even on finished code.
+- **Context compression is invisible.** Claude Code auto-compresses near the context limit. That's a quality change I can't see in the CSV.
+
+## The idle-and-continue tangent
+
+A related question I keep asking: what if I just leave the terminal open and type into the same session tomorrow? Behavior that matters:
+
+- **Idle costs zero.** No tokens consumed while you're not prompting.
+- **Cache decays at 5 min.** First prompt tomorrow pays a full cache miss on the *entire transcript* — for an 80k-token conversation, that's a meaningful chunk on a single prompt. Subsequent prompts within 5 min are cheap again.
+- **Context keeps growing.** By afternoon the conversation may be 120k tokens; auto-compression kicks in near the limit, lossy and unpredictable.
+- **Failure modes exist.** Laptop sleep that kills the process, terminal close, system restart, Claude Code update — transcript persists to disk but active session state is lost. You'd re-enter via `claude --resume`, which is just cold-resume cost under a different name.
+
+**Cost ranking for resuming tomorrow, cheapest to most expensive:**
+1. Wrap today, `/start` fresh tomorrow — cold read of CLAUDE.md, few thousand tokens.
+2. Close today, `claude --resume` tomorrow — full-transcript cache miss on first prompt.
+3. Leave open today, keep typing tomorrow — same cache miss as #2, plus a larger transcript that keeps growing.
+
+Idling isn't a cost avoider; it's a cost time-shifter. The spend is paid the moment you type the next prompt.
+
+## Where this could go
+
+- **Stage 1 (this quarter):** Build the Stop hook. Log for a month. See if the signal is obvious.
+- **Stage 2 (if signal exists):** Publish a post with the numbers — "a year of Claude Code at X tokens, Y cost, Z cache hit rate." Interesting to me and to anyone using the tool seriously.
+- **Stage 3 (if the question deepens):** Build the A/B harness. Turn it into a real eval. Maybe generalize to "when should an AI pair programmer summarize vs. remember?" — which is a live open question across agent designs.
+
+The research value isn't in proving wrap-start wins. It's in making the tradeoff legible enough to decide deliberately, instead of guessing.
