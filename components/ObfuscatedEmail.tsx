@@ -5,7 +5,7 @@ import { useEffect, useState } from "react";
 // Obfuscation: the email is assembled on the client, so bots scraping
 // static HTML see only the fallback "email" text. Not bulletproof against
 // headless browsers, but cuts the long tail of lazy harvesters.
-const USER = "vivek4879";
+const USER = "vmaher2325";
 const DOMAIN = "gmail.com";
 
 type Props = {
