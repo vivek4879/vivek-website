@@ -86,14 +86,35 @@ Architectural spec note: `PORTFOLIO_SPEC.md` predates the notebook pivot and is 
 
 **Visual QA completed on dev:** homepage composition, `/blog` layout, `/lab` heading, theme toggle on every page, `/lab/session-token-economics` detail page.
 
-### Next Steps (pick up here tomorrow)
-1. **Continue design / content iteration on `refactor/notebook-pivot`.** User plans more changes; open-ended.
-2. **Open PR + merge decision** — once the branch feels finished, decide: merge to `main` directly (replace under-construction with new site as production), or set up a new `dev` branch that takes over preview deploys.
-3. **Populate content.** Structure implies 3+ items in each of Projects / Writing / Lab on the homepage. Projects has 8 (fine). Writing has 1 real post (`hackathon-win-with-claude-code`). Lab has 7 items. Writing is the thinnest — next post bumps it from sparse-reads-as-empty to sparse-reads-as-disciplined.
-4. **Deep-dive pages for queued lab items** — Human/Machine case study, pretext experiment. Pipeline is already built; just drop `content/lab/human-machine-toggle.mdx` etc. and the page lights up.
-5. **Token-economics Stop hook** — implement the observational measurement plan described in `content/lab/session-token-economics.mdx`. Would verify which observables `Stop` hook actually receives in Claude Code first.
-6. **Revisit accent palette** — cyan is a carryover from the maximalist era. Consider a single quieter accent or monochrome with one pop color as a dedicated polish step.
-7. **AI chat widget** (from original roadmap) — Claude Haiku via API route, floating bottom-right. Still on the long-term list but not urgent.
+### 2026-04-19 — Pretext direction locked + second lab entry shipped
+
+**Pretext typography experiment — direction settled.** Vivek surfaced two poems he lives by: Kipling's *If—* and Emerson's *What is Success?*, and wanted them woven into the site without it feeling like a loud manifesto. Long ideation session covered marginalia, Talmudic layout, daily-verse epigraphs, tap-essay (Robin Sloan *Fish*-style), console easter eggs, `/why` as a first-class room, and more. Realised mid-session that "pretext" in the queued lab idea *is* **chenglou/pretext** — Cheng Lou's 15KB DOM-free text-layout library released March 2026 that reflows text around moving physics shapes at 60fps. That unlocks the real experiment.
+
+**Locked direction for `/lab/credo`:**
+- **MVP — "Keep your head" (Kipling stanza 1).** Calmly rendered poem at centre; chaotic scraps of text (notifications, noise, headlines) fly around as physics objects; host poem gently reflows around them without losing composure. Stoicism made typographic. One-shot, unforgettable, small scope.
+- **V2 — "The two poems meeting."** Both poems on the page; fragments of each drift across the other's column; resonant lines ("Triumph and Disaster" ↔ "betrayal of false friends") briefly magnetise and glow when they pass. Richer, re-readable. Higher build cost — deferred until library's rough edges are known.
+- **Optional polish (after destination exists):** quiet italic epigraph above `Today` on the homepage, deterministically seeded by date. Click-through to `/lab/credo`.
+- **Known unknowns:** `chenglou/pretext` is ~3 weeks old, so expect API churn / rough edges. Must respect `prefers-reduced-motion` — physics animations need a calm static fallback.
+
+**Also shipped this session:**
+- New `/lab/output-style-vs-skills` entry + MDX write-up. Compares Claude Code output styles (system-prompt-layered, session-start-only) vs skills (injected mid-session as user messages) using Vivek's own custom `pair-programming` output style and `/pair-on` / `/pair-off` skills as the case study. Clarifies the caching picture (mid-session skill injection is *not* a cache break — one-time miss on ~200 new tokens, then cached). Real cost lives in output tokens, not input. Status: exploring; experiment plan included in the MDX for measuring token deltas across two ergonomic patterns. Committed as `2e1f3cf`, **not pushed**.
+
+**Uncommitted work on disk:**
+- `components/ObfuscatedEmail.tsx` — contact email changed from `vivek4879@gmail.com` → `vmaher2325@gmail.com`. Verified no other contact-email occurrences; all remaining `vivek4879` strings are the GitHub handle.
+
+**Next session (planned in pair-programming output style):**
+1. **Spike `/lab/credo` "Keep your head" MVP** with `chenglou/pretext`. First pass: install library, get Kipling stanza 1 rendering cleanly, then animate one noise element reflowing around the poem. Validate the *feeling* before going deeper.
+2. Commit the email change + push `refactor/notebook-pivot` (currently 1 commit ahead of origin + uncommitted email edit).
+3. After MVP lands: evaluate V2 ("two poems meeting") feasibility given what was learned.
+
+### Next Steps (deferred / longer-horizon)
+1. **Open PR + merge decision** — once `refactor/notebook-pivot` feels finished, decide: merge to `main` directly (replace under-construction), or set up a new `dev` branch for preview deploys.
+2. **Populate content.** Writing has 1 real post (`hackathon-win-with-claude-code`); Lab now has 8 items, 2 with detail pages. Writing remains the thinnest section — next post bumps it from sparse-reads-as-empty to sparse-reads-as-disciplined.
+3. **Deep-dive pages for other queued lab items** — Human/Machine case study, plus any others that emerge. Pipeline is built.
+4. **Token-economics Stop hook** — implement the observational measurement plan in `content/lab/session-token-economics.mdx`. Verify which observables `Stop` hook actually receives in current Claude Code first.
+5. **Output-style-vs-skills experiment** — run the measurement plan from `content/lab/output-style-vs-skills.mdx` once the ergonomic answer needs numbers.
+6. **Revisit accent palette** — cyan is a carryover from the maximalist era. Consider quieter accent or monochrome-with-one-pop.
+7. **AI chat widget** (Claude Haiku, bottom-right). Still on the long-term list.
 
 ### Known stale
 - `PORTFOLIO_SPEC.md`: written for the maximalist vision. Keep around for history; don't trust it for current state.
