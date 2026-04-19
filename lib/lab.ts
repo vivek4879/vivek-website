@@ -19,6 +19,13 @@ export const labItems: LabItem[] = [
     status: "exploring",
   },
   {
+    id: "output-style-vs-skills",
+    title: "Output styles vs skills — where Claude Code instructions live",
+    description:
+      "I authored a pair-programming output style and a matching /pair-on / /pair-off skill pair with nearly identical instructions — one lives in the system prompt from session start, the other injects mid-session as a user message. They look identical from the outside but differ in how they cache, where they cost tokens, and whether mid-session toggling is even viable. Plan: document the mechanics from the docs and first principles, then run a small experiment comparing 'pair-by-default + /pair-off for quick fixes' against 'default + /pair-on when learning' on identical tasks. Click through for the full write-up.",
+    status: "exploring",
+  },
+  {
     id: "callout-component",
     title: "Custom MDX <Callout> component",
     description:

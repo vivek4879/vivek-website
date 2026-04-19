@@ -1,0 +1,83 @@
+## The setup
+
+Claude Code ships with two extension mechanisms that can customise how Claude behaves in a session: **output styles** (custom system-prompt layers, selected via `/config`) and **skills** (task-specific prompts invoked with a slash command, stored under `~/.claude/skills/`). Neither ships with a pair-programming behaviour out of the box.
+
+I wrote both for myself. `~/.claude/output-styles/pair-programming.md` is a custom output style; `~/.claude/skills/pair-on/SKILL.md` and `~/.claude/skills/pair-off/SKILL.md` are custom skills. They contain nearly identical instructions — navigator/driver contract, "explain why before what," two options with tradeoffs, ★ Insight blocks. Different delivery mechanism, same intended behaviour.
+
+So the question: when should I use which, and is there a measurable cost difference between the two deliveries?
+
+## Where each one actually lives
+
+**Output styles** modify Claude Code's system prompt. Selected via `/config` → Output style, saved to `.claude/settings.local.json`, baked into the session at session start. From the docs: *"changes take effect the next time you start a new session."* This is deliberate — keeping the system prompt stable lets Anthropic's prompt cache stay warm across turns. My `pair-programming.md` has `keep-coding-instructions: true`, so it layers *on top of* Claude Code's default software-engineering prompt rather than replacing it.
+
+**Skills** are task-specific prompts invoked mid-session via a slash command (like my `/pair-on`) or auto-loaded when Claude decides they're relevant. The skill's content is injected as a user message in the current conversation. Takes effect immediately; lasts only for that session.
+
+Same end behaviour, completely different delivery.
+
+## The caching picture
+
+Anthropic's API caches message prefixes. A cache hit means the prefix matches what was cached before — cheap and fast. A miss means re-processing those tokens at full cost. The cache decays after ~5 minutes of idle.
+
+**For an output style:** the pair-programming instructions sit in the system prompt from turn 1. Every turn, that prefix is cached. Zero extra input-token cost after the first request.
+
+**For a mid-session `/pair-on`:** the skill's ~200 tokens get appended to the tail at turn N. Turns 1 through N–1 still cache fine — adding content at the end doesn't invalidate the earlier prefix. Turn N processes ~200 new tokens once; turns N+1 onwards cache the new content as part of their prefix. One-time cost, not ongoing.
+
+So the input-side cost difference is small — a few hundred tokens once — and it's not meaningfully "more expensive" to toggle mid-session. I oversold this to myself at first by calling it a "cache break." The more honest framing is: a one-time miss on ~200 new tokens, then back to normal caching.
+
+## Where the real cost lives — output tokens
+
+Pair mode produces much longer responses: two options with tradeoffs, CS-fundamentals context, ★ Insight blocks, interview-relevant asides, explicit check-understanding questions. A single small change in pair mode can produce 800–1500 output tokens. The same change in default mode is 100–300 output tokens.
+
+Output tokens cost ~3–5× more than input tokens on Anthropic pricing. So the *interesting* question isn't input-token efficiency — it's whether the verbose-by-default system prompt matches the moment.
+
+## Two ergonomic patterns that both save tokens
+
+**Pattern A — Default-quiet, learn-on-demand.**
+Output style: Default. Use `/pair-on` when you hit something worth learning; `/pair-off` to resume shipping. Most turns generate short responses; the few where you're learning are deliberately verbose. No system-prompt drift risk because nothing in the system prompt contradicts the current mode.
+
+**Pattern B — Pair-by-default, quick fixes off.**
+Output style: Pair Programming. Use `/pair-off` when you want a fast fix without explanation; `/pair-on` to return to learning mode. Default state teaches; explicit off-switch for ergonomic shortcuts. Drift risk: the system prompt still says "pair mode" even after `/pair-off`, so Claude may occasionally slide back into teaching. Recent user instructions usually win, but it's not airtight.
+
+Both patterns save output tokens vs. "always in pair mode." Pattern A is cleaner (no contradictory instructions). Pattern B fits better if the *default* posture I want is learning.
+
+## Back-of-envelope numbers
+
+For a single toggle cycle (off → fix → on):
+
+- Extra input: ~300 tokens once, then cached. On Opus: ~$0.005 on the miss.
+- Saved output: 500–1200 tokens vs. doing it all in pair mode. On Opus: ~$0.04–$0.09 saved.
+- Net: ~$0.03–$0.08 saved per cycle, plus faster response.
+
+These are estimates from reading the docs and thinking about the mechanics. The experiment below turns them into real numbers.
+
+## Experiment plan
+
+**Goal:** For a fixed task, measure token deltas across three workflows.
+
+1. **Default style, every turn in default.** Baseline.
+2. **Default style + `/pair-on` on learning turns only.** Pattern A.
+3. **Pair-programming style + `/pair-off` on shipping turns only.** Pattern B.
+
+**Method:** Pick a bounded task (say, "add a small component to this project" — 3–5 turns). Run it three times, once per workflow, starting from the same repo state. Capture `input_tokens`, `output_tokens`, `cache_read_input_tokens`, `cache_creation_input_tokens` from raw API responses — either via Claude Code's built-in cost tracking or by instrumenting an Anthropic SDK script that replays the conversation shape.
+
+**What to look for:**
+
+- Total cost per workflow.
+- Input vs. output token split.
+- Whether drift actually happens in Pattern B — does Claude slip back into teaching after `/pair-off`?
+- Subjective quality of the shipped code — same, worse, better?
+
+## Honest limitations
+
+- **Claude's responses aren't deterministic.** Same task, three runs, different outputs. Need multiple trials per workflow to separate signal from noise.
+- **Quantifying "drift" requires a rubric.** Hand-scoring a few runs is doable; scaling isn't.
+- **Cache state at each run's start must match.** Either use fresh sessions or idle long enough to invalidate the prefix — otherwise comparisons are contaminated.
+- **The observational version (this site) isn't the controlled version.** A clean measurement likely needs an SDK harness, not interactive Claude Code.
+
+## Where this could go
+
+- **Stage 1 (now):** Live with both patterns for a week. Notice which one feels right ergonomically — often the gut answer is enough.
+- **Stage 2 (if the ergonomic answer isn't obvious):** Run the experiment with 3–5 trials per workflow. Publish the numbers.
+- **Stage 3 (speculative):** The deeper question behind this is "when should custom behavior live in the system prompt vs. be toggled via user messages?" — a design question that generalizes well beyond Claude Code into agent design in general. If the numbers tell an interesting story, it's worth a blog post.
+
+The goal isn't to prove one pattern wins. It's to replace my hand-wavy "cache break" intuition with real observables — and to make the tradeoff legible enough to pick deliberately, not by vibe.
