@@ -42,9 +42,11 @@ Architectural spec note: `PORTFOLIO_SPEC.md` predates the notebook pivot and is 
 
 ## Branches
 
-- **`main`**: production. Currently still serves the under-construction page (last commit there is pre-rewrite). Do NOT push to main until the pivot is merged deliberately.
-- **`fix/gradient-mesh-mode-toggle`**: the old "dev" branch with the maximalist version. Superseded.
-- **`refactor/notebook-pivot`** (active): the notebook rewrite. Pushed to origin. No PR open. Vercel preview auto-deploys on push.
+- **`main`**: production. Serves the notebook site as of `fe83b66` (PR #8 merged 2026-04-19). Vercel auto-deploys from here.
+- **Workflow**: trunk-based. Cut a short-lived feature branch off `main` (`feat/<thing>` or `fix/<thing>`), push, open a PR, merge, delete the branch. Do not let feature branches drift for weeks.
+- **Tags preserving old states** (don't delete):
+  - `v1-maximalist` → `9808ff6` — the gradient-mesh / Human-Machine version that was production until 2026-04-19. Checkout to revisit.
+  - `v0-under-construction` → `768136a` — the original placeholder.
 
 ## Session Log
 
